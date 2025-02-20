@@ -29,7 +29,7 @@ export class User {
   @Prop({ default: false })
   isVerified: boolean;
 
-  @Prop({ required: true, enum: AuthProvider, default: AuthProvider.EMAIL })
+  @Prop({ enum: AuthProvider, default: AuthProvider.EMAIL })
   provider: AuthProvider;
 
   @Prop({ default: 0 })

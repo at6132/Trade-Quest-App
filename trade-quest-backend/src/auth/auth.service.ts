@@ -29,7 +29,20 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
-    return user;
+    
+    const userResponse = {
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      isVerified: user.isVerified,
+      provider: user.provider,
+      xp: user.xp,
+      tier: user.tier,
+      assets: user.assets,
+      _id: user._id,
+    };
+
+    return userResponse;
   }
 
   async login(user: User) {

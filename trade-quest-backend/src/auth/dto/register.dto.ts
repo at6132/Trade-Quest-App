@@ -12,8 +12,8 @@ export class RegisterDto {
   email: string;
 
   @IsEnum(AuthProvider)
-  @IsNotEmpty()
-  provider: AuthProvider;
+  @IsOptional()
+  provider: AuthProvider = AuthProvider.EMAIL;
 
   @IsString()
   @IsNotEmpty()

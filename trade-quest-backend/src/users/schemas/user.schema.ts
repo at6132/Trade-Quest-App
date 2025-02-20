@@ -1,11 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { AuthProvider } from 'src/config/enums';
+import { Asset } from 'src/assets/schemas/asset.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
+  _id: string;
   id: string;
 
   @Prop({ required: true })
@@ -26,11 +29,17 @@ export class User {
   @Prop({ default: false })
   isVerified: boolean;
 
+  @Prop({ required: true, enum: AuthProvider, default: AuthProvider.EMAIL })
+  provider: AuthProvider;
+
   @Prop({ default: 0 })
   xp: number;
 
   @Prop({ default: 1 })
   tier: number;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Asset' }] })
+  assets: Asset[];
 }
 
 const UserSchema = SchemaFactory.createForClass(User); 

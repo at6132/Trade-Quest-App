@@ -5,6 +5,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AssetsModule } from './assets/assets.module';
+import { PortfoliosModule } from './portfolios/portfolios.module';
+import { TradesModule } from './trades/trades.module';
+import { LeaderboardsModule } from './leaderboards/leaderboards.module';
+import { LeaderboardsService } from './leaderboards/leaderboards.service';
 
 @Module({
   imports: [
@@ -31,6 +35,10 @@ import { AssetsModule } from './assets/assets.module';
     AuthModule,
     UsersModule,
     AssetsModule,
+    PortfoliosModule,
+    TradesModule,
+    LeaderboardsModule,
   ],
+  providers: [LeaderboardsService],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsNotEmpty, Matches } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsNotEmpty, Matches, IsBoolean, IsEnum } from 'class-validator';
 import { PASSWORD_ERROR_MESSAGE, PASSWORD_REGEX } from 'src/config/constants';
+import { AuthProvider } from 'src/config/enums';
 
 export class RegisterDto {
   @IsString()
@@ -10,6 +11,9 @@ export class RegisterDto {
   @IsNotEmpty()
   email: string;
 
+  @IsEnum(AuthProvider)
+  @IsOptional()
+  provider: AuthProvider = AuthProvider.EMAIL;
 
   @IsString()
   @IsNotEmpty()
@@ -22,6 +26,10 @@ export class RegisterDto {
   })
   @IsNotEmpty()
   password: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isVerified?: boolean;
 
   @IsString()
   @IsOptional()

@@ -13,22 +13,40 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(loginDto: LoginDto): Promise<Partial<User> | null> {
+  async validateUser(loginDto: LoginDto): Promise<any> {
     const user = await this.usersService.findByEmail(loginDto.email);
-    if (user && await bcrypt.compare(loginDto.password, user.password) && user.isVerified) {
-      const { password, ...result } = user;
-      return result;
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    return null;
+
+    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return user;
   }
 
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
-    return user;
+    
+    const userResponse = {
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      isVerified: user.isVerified,
+      provider: user.provider,
+      xp: user.xp,
+      tier: user.tier,
+      assets: user.assets,
+      _id: user._id,
+    };
+
+    return userResponse;
   }
 
   async login(user: User) {
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user._id };
     return {
       user,
       access_token: this.jwtService.sign(payload),

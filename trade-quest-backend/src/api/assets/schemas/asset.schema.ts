@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { User } from '../../api/users/schemas/user.schema';
+import { User } from 'src/api/users/schemas/user.schema';
 import { AssetType } from 'src/config/enums';
 
 export type AssetDocument = HydratedDocument<Asset>;

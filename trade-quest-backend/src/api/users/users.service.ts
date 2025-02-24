@@ -5,7 +5,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from 'src/api/auth/dto/register.dto';
 import { AssetType } from 'src/config/enums';
 import { UserProfile } from './interfaces/user-profile.interface';
-import { Asset, AssetDocument } from 'src/assets/schemas/asset.schema';
+import { Asset, AssetDocument } from '../assets/schemas/asset.schema';
 import { ConflictException } from '@nestjs/common';
 
 @Injectable()

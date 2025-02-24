@@ -11,3 +11,8 @@ export enum AssetType {
   AUDIO = 'audio',
   OTHER = 'other'
 }
+
+export enum Role {
+  USER = 'user',
+  ADMIN = 'admin',
+} 

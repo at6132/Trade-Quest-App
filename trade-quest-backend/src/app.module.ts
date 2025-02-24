@@ -8,7 +8,7 @@ import { AssetsModule } from './assets/assets.module';
 import { PortfoliosModule } from './api/portfolios/portfolios.module';
 import { TradesModule } from './api/trades/trades.module';
 import { LeaderboardsModule } from './api/leaderboards/leaderboards.module';
-import { LeaderboardsService } from './api/leaderboards/leaderboards.service';
+
 
 @Module({
   imports: [
@@ -39,6 +39,6 @@ import { LeaderboardsService } from './api/leaderboards/leaderboards.service';
     TradesModule,
     LeaderboardsModule,
   ],
-  providers: [LeaderboardsService],
+  providers: [],
 })
 export class AppModule {}

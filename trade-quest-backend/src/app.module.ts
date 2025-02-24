@@ -2,9 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './api/auth/auth.module';
+import { UsersModule } from './api/users/users.module';
 import { AssetsModule } from './assets/assets.module';
+import { PortfoliosModule } from './api/portfolios/portfolios.module';
+import { TradesModule } from './api/trades/trades.module';
+import { LeaderboardsModule } from './api/leaderboards/leaderboards.module';
+
 
 @Module({
   imports: [
@@ -31,6 +35,10 @@ import { AssetsModule } from './assets/assets.module';
     AuthModule,
     UsersModule,
     AssetsModule,
+    PortfoliosModule,
+    TradesModule,
+    LeaderboardsModule,
   ],
+  providers: [],
 })
 export class AppModule {}

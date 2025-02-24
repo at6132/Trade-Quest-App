@@ -10,12 +10,12 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/api/users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { User } from 'src/users/schemas/user.schema';
+import { User } from 'src/api/users/schemas/user.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { UserProfile } from 'src/users/interfaces/user-profile.interface';
+import { UserProfile } from 'src/api/users/interfaces/user-profile.interface';
 
 @Controller('api/auth')
 export class AuthController {

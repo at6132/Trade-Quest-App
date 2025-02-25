@@ -17,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { UserProfile } from 'src/api/users/interfaces/user-profile.interface';
 
-@Controller('api/auth')
+@Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService, 

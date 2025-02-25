@@ -6,4 +6,6 @@ export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-
 export const PASSWORD_ERROR_MESSAGE = 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character';
 export const GOOGLE_CLIENT_ID = 'GOOGLE_CLIENT_ID';
 export const GOOGLE_CLIENT_SECRET = 'GOOGLE_CLIENT_SECRET';
-export const GOOGLE_CALLBACK_URL = 'GOOGLE_CALLBACK_URL'; 
+export const GOOGLE_CALLBACK_URL = 'GOOGLE_CALLBACK_URL';
+export const MIN_TIER_KEY = 'minTier';
+export const ROLES_KEY = 'roles';

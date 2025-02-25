@@ -4,7 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './api/auth/auth.module';
 import { UsersModule } from './api/users/users.module';
-import { AssetsModule } from './assets/assets.module';
+import { AssetsModule } from './api/assets/assets.module';
 import { PortfoliosModule } from './api/portfolios/portfolios.module';
 import { TradesModule } from './api/trades/trades.module';
 import { LeaderboardsModule } from './api/leaderboards/leaderboards.module';
@@ -12,7 +12,7 @@ import { LeaderboardsModule } from './api/leaderboards/leaderboards.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
+    ConfigModule.forRoot({  
       isGlobal: true,
       envFilePath: '.env',
     }),

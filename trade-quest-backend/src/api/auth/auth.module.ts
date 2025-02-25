@@ -6,7 +6,7 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from '../../passport/jwt.strategy';
 import { LocalStrategy } from '../../passport/local.strategy';
 import { GoogleStrategy } from '../../passport/google.strategy';
-import { AssetsModule } from '../../assets/assets.module';
+import { AssetsModule } from '../assets/assets.module';
 
 @Module({
   imports: [

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { AuthProvider } from 'src/config/enums';
-import { Asset } from 'src/assets/schemas/asset.schema';
+import { Asset } from '../../assets/schemas/asset.schema';
 
 export type UserDocument = HydratedDocument<User>;
 

@@ -16,6 +16,7 @@ import { User } from 'src/api/users/schemas/user.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { UserProfile } from 'src/api/users/interfaces/user-profile.interface';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -33,13 +34,10 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.validateUser(loginDto);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-    return this.authService.login(user as User);
+  async login(@Req() req: Request) {
+    return this.authService.login(req.user as User);
   }
 
   @Get('google')

@@ -24,6 +24,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Email not verified');
+    }
+
     return user;
   }
 

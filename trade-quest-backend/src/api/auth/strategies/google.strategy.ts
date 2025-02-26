@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
 import { AssetType, AuthProvider } from 'src/config/enums';
 import { AssetsService } from '../../assets/assets.service';
+import { NO_USER_FROM_GOOGLE } from 'src/config/constants';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -30,7 +31,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const { name, emails, photos, _json } = profile;
 
     if (!emails?.[0]?.value) {
-      done(new Error('No email found from Google'), undefined);
+      done(new Error(NO_USER_FROM_GOOGLE), undefined);
       return;
     }
 

@@ -20,6 +20,7 @@ import {
 } from 'src/config/constants';
 import { Enable2faDto } from './dto/enable-2fa.dto';
 import { JwtService } from '@nestjs/jwt';
+import { TwoFactorMethod } from 'src/config/enums';
 
 @Injectable()
 export class TwoFactorService {
@@ -141,7 +142,7 @@ export class TwoFactorService {
     const { method, phoneNumber } = enable2faDto;
 
     // If method is SMS, validate phone number
-    if (method === 'sms' && !phoneNumber) {
+    if (method === TwoFactorMethod.SMS && !phoneNumber) {
       throw new BadRequestException(PHONE_NUMBER_REQUIRED);
     }
 
@@ -154,7 +155,7 @@ export class TwoFactorService {
     let tfaSecret = '';
     let qrCode = '';
 
-    if (method === 'authenticator') {
+    if (method === TwoFactorMethod.AUTHENTICATOR) {
       const { secret, otpAuthUrl } = this.generateSecret(user.username);
       tfaSecret = secret;
       qrCode = await this.generateQrCode(otpAuthUrl);
@@ -164,7 +165,7 @@ export class TwoFactorService {
     await this.usersService.update(userId, {
       tfaMethod: method,
       tfaSecret,
-      phoneNumber: method === 'sms' ? phoneNumber : undefined,
+      phoneNumber: method === TwoFactorMethod.SMS ? phoneNumber : undefined,
     });
 
     return {
@@ -190,7 +191,7 @@ export class TwoFactorService {
 
     let isValid = false;
 
-    if (user.tfaMethod === 'authenticator') {
+    if (user.tfaMethod === TwoFactorMethod.AUTHENTICATOR) {
       isValid = this.verifyToken(token, user.tfaSecret);
     } else {
       // For SMS and Email, the token should be validated against a stored OTP

@@ -15,4 +15,10 @@ export enum AssetType {
 export enum Role {
   USER = 'user',
   ADMIN = 'admin',
-} 
+}
+
+export enum TwoFactorMethod {
+  EMAIL = 'email',
+  SMS = 'sms',
+  AUTHENTICATOR = 'authenticator'
+}

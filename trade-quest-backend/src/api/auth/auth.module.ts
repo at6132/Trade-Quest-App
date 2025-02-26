@@ -7,6 +7,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { AssetsModule } from '../assets/assets.module';
+import { TwoFactorService } from './two-factor.service';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { AssetsModule } from '../assets/assets.module';
     JwtStrategy,
     LocalStrategy,
     GoogleStrategy,
+    TwoFactorService,
   ],
-  exports: [AuthService],
+  exports: [AuthService, TwoFactorService],
 })
 export class AuthModule {} 

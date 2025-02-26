@@ -37,6 +37,10 @@ export class UsersService {
     }
   }
 
+  async findById(id: string): Promise<User | null> {
+    return this.userModel.findById(id).lean();
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).lean();
   }
@@ -44,7 +48,7 @@ export class UsersService {
   async getProfile(userId: string): Promise<UserProfile | null> {
     const user = await this.userModel
       .findById(userId)
-      .select('-password -assets -__v')
+      .select('-password -assets -tfaSecret -__v')
       .lean()
       .exec();
 
@@ -67,5 +71,9 @@ export class UsersService {
       ...user,
       avatar: avatar?.url || null
     } as UserProfile;
+  }
+
+  async update(userId: string, updateUserDto: Partial<User>): Promise<User | null> {
+    return this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
   }
 } 

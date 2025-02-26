@@ -12,13 +12,17 @@ export class LeaderboardsService {
   ) {}
 
   async create(leaderboard: Partial<Leaderboard>): Promise<LeaderboardProfile> {
-    const createdLeaderboard = await new this.leaderboardModel(leaderboard).save();
+    const createdLeaderboard = await new this.leaderboardModel(
+      leaderboard,
+    ).save();
     return this.buildLeaderboardProfile(createdLeaderboard);
   }
 
   async findAll(): Promise<LeaderboardProfile[]> {
     const leaderboards = await this.leaderboardModel.find().exec();
-    return leaderboards.map(leaderboard => this.buildLeaderboardProfile(leaderboard));
+    return leaderboards.map((leaderboard) =>
+      this.buildLeaderboardProfile(leaderboard),
+    );
   }
 
   async findOne(id: string): Promise<LeaderboardProfile> {
@@ -29,7 +33,10 @@ export class LeaderboardsService {
     return this.buildLeaderboardProfile(leaderboard);
   }
 
-  async update(id: string, leaderboard: Partial<Leaderboard>): Promise<LeaderboardProfile> {
+  async update(
+    id: string,
+    leaderboard: Partial<Leaderboard>,
+  ): Promise<LeaderboardProfile> {
     const updatedLeaderboard = await this.leaderboardModel
       .findByIdAndUpdate(id, leaderboard, { new: true })
       .exec();
@@ -46,7 +53,9 @@ export class LeaderboardsService {
     }
   }
 
-  private buildLeaderboardProfile(leaderboard: LeaderboardDocument): LeaderboardProfile {
+  private buildLeaderboardProfile(
+    leaderboard: LeaderboardDocument,
+  ): LeaderboardProfile {
     const doc = leaderboard.toJSON();
     return {
       ...doc,

@@ -51,4 +51,3 @@ AssetSchema.index({ filename: 1 });
 AssetSchema.index({ createdAt: -1 });
 
 export { AssetSchema };
-

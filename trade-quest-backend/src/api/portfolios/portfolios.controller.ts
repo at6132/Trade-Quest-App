@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { PortfoliosService } from './portfolios.service';
 import { PortfolioProfile } from './interfaces/portfolio-profile.interface';
 import { Portfolio } from './schemas/portfolio.schema';

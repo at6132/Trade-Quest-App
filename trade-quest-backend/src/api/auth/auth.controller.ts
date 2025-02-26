@@ -1,13 +1,13 @@
-import { 
-  Controller, 
-  Post, 
-  Body, 
-  UnauthorizedException, 
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
   BadRequestException,
   Get,
   Req,
   UseGuards,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -21,14 +21,20 @@ import { Enable2faDto } from './dto/enable-2fa.dto';
 import { Verify2faDto } from './dto/verify-2fa.dto';
 import { TwoFactorService } from './two-factor.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { USER_ALREADY_EXISTS, USER_NOT_FOUND, INVALID_2FA_METHOD, NO_USER_FROM_GOOGLE, USER_NOT_AUTHENTICATED } from 'src/config/constants';
+import {
+  USER_ALREADY_EXISTS,
+  USER_NOT_FOUND,
+  INVALID_2FA_METHOD,
+  NO_USER_FROM_GOOGLE,
+  USER_NOT_AUTHENTICATED,
+} from 'src/config/constants';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private usersService: UsersService,
-    private twoFactorService: TwoFactorService
+    private twoFactorService: TwoFactorService,
   ) {}
 
   @Post('register')
@@ -73,7 +79,7 @@ export class AuthController {
     if (!profile) {
       throw new UnauthorizedException(USER_NOT_FOUND);
     }
-    
+
     return profile;
   }
 
@@ -102,18 +108,22 @@ export class AuthController {
   }
 
   @Post('2fa/send-otp')
-  async sendOtp(@Body() body: { email: string; method: string; phoneNumber?: string }) {
+  async sendOtp(
+    @Body() body: { email: string; method: string; phoneNumber?: string },
+  ) {
     const user = await this.usersService.findByEmail(body.email);
     if (!user) {
       throw new NotFoundException(USER_NOT_FOUND);
     }
-    
+
     if (body.method === 'sms') {
-      return this.twoFactorService.sendSmsOtp(body.phoneNumber || user.phoneNumber);
+      return this.twoFactorService.sendSmsOtp(
+        body.phoneNumber || user.phoneNumber,
+      );
     } else if (body.method === 'email') {
       return this.twoFactorService.sendEmailOtp(user.email, user.name);
     }
-    
+
     throw new BadRequestException(INVALID_2FA_METHOD);
   }
 
@@ -121,4 +131,4 @@ export class AuthController {
   async verifyLogin2fa(@Body() body: { token: string; tempToken: string }) {
     return this.twoFactorService.verify2faLogin(body.token, body.tempToken);
   }
-} 
+}

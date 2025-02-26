@@ -18,10 +18,12 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: RegisterDto): Promise<User> {
-    const existingUser = await this.userModel.findOne({ 
-      username: createUserDto.username 
-    }).exec();
-    
+    const existingUser = await this.userModel
+      .findOne({
+        username: createUserDto.username,
+      })
+      .exec();
+
     if (existingUser) {
       throw new ConflictException('Username already exists');
     }
@@ -60,7 +62,7 @@ export class UsersService {
       .findOne({
         uploadedBy: new Types.ObjectId(userId),
         type: AssetType.AVATAR,
-        isActive: true
+        isActive: true,
       })
       .select('url')
       .sort({ createdAt: -1 })
@@ -69,11 +71,16 @@ export class UsersService {
 
     return {
       ...user,
-      avatar: avatar?.url || null
+      avatar: avatar?.url || null,
     } as UserProfile;
   }
 
-  async update(userId: string, updateUserDto: Partial<User>): Promise<User | null> {
-    return this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
+  async update(
+    userId: string,
+    updateUserDto: Partial<User>,
+  ): Promise<User | null> {
+    return this.userModel.findByIdAndUpdate(userId, updateUserDto, {
+      new: true,
+    });
   }
-} 
+}

@@ -7,7 +7,7 @@ import { Logger } from 'winston';
 @Injectable()
 export class RequestLoggingMiddleware implements NestMiddleware {
   constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
   use(req: Request, res: Response, next: NextFunction) {
@@ -33,4 +33,4 @@ export class RequestLoggingMiddleware implements NestMiddleware {
 
     next();
   }
-} 
+}

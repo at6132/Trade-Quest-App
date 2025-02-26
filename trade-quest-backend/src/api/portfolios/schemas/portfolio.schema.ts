@@ -53,7 +53,12 @@ export class Portfolio {
 
   @Prop({
     default: [],
-    type: [{ type: String, enum: ['stocks', 'crypto', 'forex', 'futures', 'options'] }],
+    type: [
+      {
+        type: String,
+        enum: ['stocks', 'crypto', 'forex', 'futures', 'options'],
+      },
+    ],
   })
   allowedMarkets: ('stocks' | 'crypto' | 'forex' | 'futures' | 'options')[];
 }

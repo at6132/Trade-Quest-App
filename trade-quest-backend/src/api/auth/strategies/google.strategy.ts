@@ -28,7 +28,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { name, emails, photos, _json } = profile;
-    
+
     if (!emails?.[0]?.value) {
       done(new Error('No email found from Google'), undefined);
       return;
@@ -69,4 +69,4 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
     done(null, newUser);
   }
-} 
+}

@@ -59,7 +59,7 @@ export class User {
   assets: Asset[];
 }
 
-const UserSchema = SchemaFactory.createForClass(User); 
+const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.index({ email: 1 }, { unique: true });
 

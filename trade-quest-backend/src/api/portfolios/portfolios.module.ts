@@ -7,11 +7,11 @@ import { Portfolio, PortfolioSchema } from './schemas/portfolio.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Portfolio.name, schema: PortfolioSchema }
+      { name: Portfolio.name, schema: PortfolioSchema },
     ]),
   ],
   providers: [PortfoliosService],
   controllers: [PortfoliosController],
-  exports: [PortfoliosService]
+  exports: [PortfoliosService],
 })
 export class PortfoliosModule {}

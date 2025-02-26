@@ -17,7 +17,7 @@ export class TradesService {
 
   async findAll(): Promise<TradeProfile[]> {
     const trades = await this.tradeModel.find().exec();
-    return trades.map(trade => this.buildTradeProfile(trade));
+    return trades.map((trade) => this.buildTradeProfile(trade));
   }
 
   async findOne(id: string): Promise<TradeProfile> {

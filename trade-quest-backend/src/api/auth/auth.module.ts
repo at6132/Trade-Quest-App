@@ -10,11 +10,7 @@ import { AssetsModule } from '../assets/assets.module';
 import { TwoFactorService } from './two-factor.service';
 
 @Module({
-  imports: [
-    UsersModule,
-    PassportModule,
-    AssetsModule,
-  ],
+  imports: [UsersModule, PassportModule, AssetsModule],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -25,4 +21,4 @@ import { TwoFactorService } from './two-factor.service';
   ],
   exports: [AuthService, TwoFactorService],
 })
-export class AuthModule {} 
+export class AuthModule {}

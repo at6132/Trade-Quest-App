@@ -7,4 +7,4 @@ export class Enable2faDto {
   @IsOptional()
   @IsString()
   phoneNumber?: string;
-} 
+}

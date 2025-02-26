@@ -20,7 +20,10 @@ export class Trade {
   @Prop({ required: true, enum: ['buy', 'sell'] })
   type: 'buy' | 'sell';
 
-  @Prop({ required: true, enum: ['stocks', 'crypto', 'forex', 'futures', 'options'] })
+  @Prop({
+    required: true,
+    enum: ['stocks', 'crypto', 'forex', 'futures', 'options'],
+  })
   market: 'stocks' | 'crypto' | 'forex' | 'futures' | 'options';
 
   @Prop({ required: true })

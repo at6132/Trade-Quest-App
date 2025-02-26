@@ -18,4 +18,4 @@ export class TierGuard implements CanActivate {
     const { user } = context.switchToHttp().getRequest();
     return user?.tier >= requiredTier;
   }
-} 
+}

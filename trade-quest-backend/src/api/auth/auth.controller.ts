@@ -28,7 +28,7 @@ import {
   NO_USER_FROM_GOOGLE,
   USER_NOT_AUTHENTICATED,
 } from 'src/config/constants';
-
+import { TwoFactorMethod } from 'src/config/enums';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -116,11 +116,11 @@ export class AuthController {
       throw new NotFoundException(USER_NOT_FOUND);
     }
 
-    if (body.method === 'sms') {
+    if (body.method === TwoFactorMethod.SMS) {
       return this.twoFactorService.sendSmsOtp(
         body.phoneNumber || user.phoneNumber,
       );
-    } else if (body.method === 'email') {
+    } else if (body.method === TwoFactorMethod.EMAIL) {
       return this.twoFactorService.sendEmailOtp(user.email, user.name);
     }
 

@@ -19,6 +19,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
-    return user;
+    const { password: userPassword, tfaSecret, tfaRecoveryCodes, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
-} 
+}

@@ -9,7 +9,6 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
   _id: string;
-  id: string;
 
   @Prop({ required: true })
   name: string;
@@ -37,6 +36,15 @@ export class User {
 
   @Prop({ default: 1 })
   tier: number;
+
+  @Prop({ default: false })
+  tfaEnabled: boolean;
+
+  @Prop({ default: null })
+  tfaSecret: string;
+
+  @Prop({ default: null })
+  tfaRecoveryCodes: string[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Asset' }] })
   assets: Asset[];

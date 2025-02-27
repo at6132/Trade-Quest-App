@@ -9,10 +9,16 @@ export enum AssetType {
   DOCUMENT = 'document',
   VIDEO = 'video',
   AUDIO = 'audio',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export enum Role {
   USER = 'user',
   ADMIN = 'admin',
-} 
+}
+
+export enum TwoFactorMethod {
+  EMAIL = 'email',
+  SMS = 'sms',
+  AUTHENTICATOR = 'authenticator',
+}

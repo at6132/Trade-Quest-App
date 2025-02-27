@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../api/users/users.service';
+import { UsersService } from '../../users/users.service';
 import { AssetType, AuthProvider } from 'src/config/enums';
-import { AssetsService } from '../api/assets/assets.service';
+import { AssetsService } from '../../assets/assets.service';
+import { NO_USER_FROM_GOOGLE } from 'src/config/constants';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -28,9 +29,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { name, emails, photos, _json } = profile;
-    
+
     if (!emails?.[0]?.value) {
-      done(new Error('No email found from Google'), undefined);
+      done(new Error(NO_USER_FROM_GOOGLE), undefined);
       return;
     }
 
@@ -69,4 +70,4 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
     done(null, newUser);
   }
-} 
+}

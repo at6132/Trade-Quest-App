@@ -17,7 +17,7 @@ import { winstonConfig } from './config/winston.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({  
+    ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),

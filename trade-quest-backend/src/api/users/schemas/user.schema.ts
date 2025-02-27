@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { AuthProvider } from 'src/config/enums';
+import { AuthProvider, TwoFactorMethod, Role } from 'src/config/enums';
 import { Asset } from '../../assets/schemas/asset.schema';
 
 export type UserDocument = HydratedDocument<User>;
@@ -9,7 +9,6 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
   _id: string;
-  id: string;
 
   @Prop({ required: true })
   name: string;
@@ -19,6 +18,9 @@ export class User {
 
   @Prop({ required: true, unique: true })
   username: string;
+
+  @Prop({ enum: Role, default: Role.USER })
+  role: Role;
 
   @Prop()
   avatar: string;
@@ -38,11 +40,26 @@ export class User {
   @Prop({ default: 1 })
   tier: number;
 
+  @Prop({ default: false })
+  tfaEnabled: boolean;
+
+  @Prop({ enum: TwoFactorMethod, default: null })
+  tfaMethod: string;
+
+  @Prop()
+  tfaSecret: string;
+
+  @Prop()
+  phoneNumber: string;
+
+  @Prop()
+  temporaryOtp: string;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Asset' }] })
   assets: Asset[];
 }
 
-const UserSchema = SchemaFactory.createForClass(User); 
+const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.index({ email: 1 }, { unique: true });
 

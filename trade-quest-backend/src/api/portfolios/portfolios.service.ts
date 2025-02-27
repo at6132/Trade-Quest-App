@@ -7,10 +7,14 @@ import { PortfolioProfile } from './interfaces/portfolio-profile.interface';
 @Injectable()
 export class PortfoliosService {
   constructor(
-    @InjectModel(Portfolio.name) private portfolioModel: Model<PortfolioDocument>,
+    @InjectModel(Portfolio.name)
+    private portfolioModel: Model<PortfolioDocument>,
   ) {}
 
-  async create(userId: string, portfolio: Partial<Portfolio>): Promise<PortfolioProfile> {
+  async create(
+    userId: string,
+    portfolio: Partial<Portfolio>,
+  ): Promise<PortfolioProfile> {
     const newPortfolio = new this.portfolioModel({
       ...portfolio,
       user: userId,
@@ -21,39 +25,52 @@ export class PortfoliosService {
 
   async findAll(userId: string): Promise<PortfolioProfile[]> {
     const portfolios = await this.portfolioModel.find({ user: userId }).exec();
-    return portfolios.map(portfolio => this.buildPortfolioProfile(portfolio));
+    return portfolios.map((portfolio) => this.buildPortfolioProfile(portfolio));
   }
 
-  async findOne(userId: string, portfolioId: string): Promise<PortfolioProfile> {
-    const portfolio = await this.portfolioModel.findOne({ _id: portfolioId, user: userId }).exec();
+  async findOne(
+    userId: string,
+    portfolioId: string,
+  ): Promise<PortfolioProfile> {
+    const portfolio = await this.portfolioModel
+      .findOne({ _id: portfolioId, user: userId })
+      .exec();
     if (!portfolio) {
       throw new NotFoundException('Portfolio not found');
     }
     return this.buildPortfolioProfile(portfolio);
   }
 
-  async update(userId: string, portfolioId: string, updates: Partial<Portfolio>): Promise<PortfolioProfile> {
-    const portfolio = await this.portfolioModel.findOneAndUpdate(
-      { _id: portfolioId, user: userId },
-      updates,
-      { new: true }
-    ).exec();
-    
+  async update(
+    userId: string,
+    portfolioId: string,
+    updates: Partial<Portfolio>,
+  ): Promise<PortfolioProfile> {
+    const portfolio = await this.portfolioModel
+      .findOneAndUpdate({ _id: portfolioId, user: userId }, updates, {
+        new: true,
+      })
+      .exec();
+
     if (!portfolio) {
       throw new NotFoundException('Portfolio not found');
     }
-    
+
     return this.buildPortfolioProfile(portfolio);
   }
 
   async remove(userId: string, portfolioId: string): Promise<void> {
-    const result = await this.portfolioModel.deleteOne({ _id: portfolioId, user: userId }).exec();
+    const result = await this.portfolioModel
+      .deleteOne({ _id: portfolioId, user: userId })
+      .exec();
     if (result.deletedCount === 0) {
       throw new NotFoundException('Portfolio not found');
     }
   }
 
-  private buildPortfolioProfile(portfolio: PortfolioDocument): PortfolioProfile {
+  private buildPortfolioProfile(
+    portfolio: PortfolioDocument,
+  ): PortfolioProfile {
     return {
       name: portfolio.name,
       description: portfolio.description,
@@ -70,7 +87,7 @@ export class PortfoliosService {
       maxLeverage: portfolio.maxLeverage,
       requireStopLoss: portfolio.requireStopLoss,
       tradingAccess: portfolio.tradingAccess,
-      allowedMarkets: portfolio.allowedMarkets
+      allowedMarkets: portfolio.allowedMarkets,
     };
   }
 }

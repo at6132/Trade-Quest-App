@@ -18,10 +18,12 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: RegisterDto): Promise<User> {
-    const existingUser = await this.userModel.findOne({ 
-      username: createUserDto.username 
-    }).exec();
-    
+    const existingUser = await this.userModel
+      .findOne({
+        username: createUserDto.username,
+      })
+      .exec();
+
     if (existingUser) {
       throw new ConflictException('Username already exists');
     }
@@ -37,6 +39,10 @@ export class UsersService {
     }
   }
 
+  async findById(id: string): Promise<User | null> {
+    return this.userModel.findById(id).lean();
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).lean();
   }
@@ -44,7 +50,7 @@ export class UsersService {
   async getProfile(userId: string): Promise<UserProfile | null> {
     const user = await this.userModel
       .findById(userId)
-      .select('-password -assets -__v')
+      .select('-password -assets -tfaSecret -__v')
       .lean()
       .exec();
 
@@ -56,7 +62,7 @@ export class UsersService {
       .findOne({
         uploadedBy: new Types.ObjectId(userId),
         type: AssetType.AVATAR,
-        isActive: true
+        isActive: true,
       })
       .select('url')
       .sort({ createdAt: -1 })
@@ -65,7 +71,16 @@ export class UsersService {
 
     return {
       ...user,
-      avatar: avatar?.url || null
+      avatar: avatar?.url || null,
     } as UserProfile;
   }
-} 
+
+  async update(
+    userId: string,
+    updateUserDto: Partial<User>,
+  ): Promise<User | null> {
+    return this.userModel.findByIdAndUpdate(userId, updateUserDto, {
+      new: true,
+    });
+  }
+}

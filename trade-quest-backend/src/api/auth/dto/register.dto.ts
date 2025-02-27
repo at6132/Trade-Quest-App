@@ -1,4 +1,13 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsNotEmpty, Matches, IsBoolean, IsEnum } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsNotEmpty,
+  Matches,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
 import { PASSWORD_ERROR_MESSAGE, PASSWORD_REGEX } from 'src/config/constants';
 import { AuthProvider } from 'src/config/enums';
 
@@ -34,4 +43,4 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   avatar?: string;
-} 
+}

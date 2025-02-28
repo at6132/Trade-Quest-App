@@ -15,13 +15,4 @@ export class LoginHistoryService {
     const loginHistory = new this.loginHistoryModel(createLoginHistoryDto);
     return loginHistory.save();
   }
-
-  async findByUserId(userId: string, limit = 10): Promise<LoginHistory[] | null> {
-    return this.loginHistoryModel
-      .find({ userId })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec();
-  }
-
 } 

@@ -8,9 +8,15 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { AssetsModule } from '../assets/assets.module';
 import { TwoFactorService } from './two-factor.service';
+import { LoginHistoryModule } from '../login-history/login-history.module';
 
 @Module({
-  imports: [UsersModule, PassportModule, AssetsModule],
+  imports: [
+    UsersModule,
+    PassportModule,
+    AssetsModule,
+    LoginHistoryModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,

@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
   NotFoundException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -29,6 +30,8 @@ import {
   USER_NOT_AUTHENTICATED,
 } from 'src/config/constants';
 import { TwoFactorMethod } from 'src/config/enums';
+import { LoginHistoryInterceptor } from '../login-history/interceptors/login-history.interceptor';
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -47,6 +50,7 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @UseInterceptors(LoginHistoryInterceptor)
   @Post('login')
   async login(@Req() req: Request) {
     return this.authService.login(req.user as User);

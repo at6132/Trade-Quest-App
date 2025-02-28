@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './config/winston.config';
+import * as useragent from 'express-useragent';
 
 async function bootstrap() {
   try {
@@ -11,6 +12,7 @@ async function bootstrap() {
     });
 
     app.enableCors();
+    app.use(useragent.express());
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({

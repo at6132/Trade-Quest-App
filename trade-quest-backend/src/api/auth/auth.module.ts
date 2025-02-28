@@ -11,12 +11,7 @@ import { TwoFactorService } from './two-factor.service';
 import { LoginHistoryModule } from '../login-history/login-history.module';
 
 @Module({
-  imports: [
-    UsersModule,
-    PassportModule,
-    AssetsModule,
-    LoginHistoryModule,
-  ],
+  imports: [UsersModule, PassportModule, AssetsModule, LoginHistoryModule],
   controllers: [AuthController],
   providers: [
     AuthService,

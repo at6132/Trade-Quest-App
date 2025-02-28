@@ -20,4 +20,4 @@ export class CreateLoginHistoryDto {
   @IsNotEmpty()
   @IsString()
   device: string;
-} 
+}

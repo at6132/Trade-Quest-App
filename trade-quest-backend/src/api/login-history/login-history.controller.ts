@@ -6,4 +6,4 @@ import { JwtAuthGuard } from 'src/api/auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 export class LoginHistoryController {
   constructor(private readonly loginHistoryService: LoginHistoryService) {}
-} 
+}

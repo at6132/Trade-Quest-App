@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoginHistoryService } from './login-history.service';
 import { LoginHistoryController } from './login-history.controller';
-import { LoginHistory, LoginHistorySchema } from './schemas/login-history.schema';
+import {
+  LoginHistory,
+  LoginHistorySchema,
+} from './schemas/login-history.schema';
 import { LoginHistoryInterceptor } from './interceptors/login-history.interceptor';
 
 @Module({
@@ -15,4 +18,4 @@ import { LoginHistoryInterceptor } from './interceptors/login-history.intercepto
   controllers: [LoginHistoryController],
   exports: [LoginHistoryService, LoginHistoryInterceptor],
 })
-export class LoginHistoryModule {} 
+export class LoginHistoryModule {}

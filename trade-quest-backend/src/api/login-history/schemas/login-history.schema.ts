@@ -22,4 +22,4 @@ export class LoginHistory {
 }
 
 export const LoginHistorySchema = SchemaFactory.createForClass(LoginHistory);
-LoginHistorySchema.index({ userId: 1 }); 
+LoginHistorySchema.index({ userId: 1 });

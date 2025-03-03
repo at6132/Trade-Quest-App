@@ -14,12 +14,14 @@ import { throttlerConfig } from './config/throttle.config';
 import { RequestLoggingMiddleware } from './common/middleware/request-logging.middleware';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './config/winston.config';
+import emailConfig from './config/email.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [emailConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

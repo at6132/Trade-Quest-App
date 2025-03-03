@@ -1,8 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  BadRequestException,
-  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -42,7 +40,8 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
 
-    const userResponse = {
+    return {
+      _id: user._id,
       name: user.name,
       email: user.email,
       username: user.username,
@@ -51,10 +50,7 @@ export class AuthService {
       xp: user.xp,
       tier: user.tier,
       assets: user.assets,
-      _id: user._id,
     };
-
-    return userResponse;
   }
 
   async login(user: User) {

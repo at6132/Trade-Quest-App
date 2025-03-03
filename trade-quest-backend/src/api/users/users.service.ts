@@ -6,7 +6,6 @@ import { RegisterDto } from 'src/api/auth/dto/register.dto';
 import { AssetType } from 'src/config/enums';
 import { UserProfile } from './interfaces/user-profile.interface';
 import { Asset, AssetDocument } from '../assets/schemas/asset.schema';
-import { ConflictException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -18,25 +17,8 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: RegisterDto): Promise<User> {
-    const existingUser = await this.userModel
-      .findOne({
-        username: createUserDto.username,
-      })
-      .exec();
-
-    if (existingUser) {
-      throw new ConflictException('Username already exists');
-    }
-
-    try {
-      const user = new this.userModel(createUserDto);
-      return await user.save();
-    } catch (error) {
-      if (error?.code === 11000) {
-        throw new ConflictException('Username already exists');
-      }
-      throw error;
-    }
+    const user = new this.userModel(createUserDto);
+    return await user.save();
   }
 
   async findById(id: string): Promise<User | null> {

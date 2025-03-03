@@ -54,29 +54,28 @@ export class AuthService {
   }
 
   async login(user: User) {
-    // Check if 2FA is enabled
-    if (user.tfaEnabled) {
-      // Return a temporary token that can only be used for 2FA verification
-      const payload = {
-        sub: user._id,
-        email: user.email,
-        requires2FA: true,
-      };
+    // // Check if 2FA is enabled
+    // if (user.tfaEnabled) {
+    //   // Return a temporary token that can only be used for 2FA verification
+    //   const payload = {
+    //     sub: user._id,
+    //     email: user.email,
+    //   };
 
-      return {
-        requires2FA: true,
-        tfaMethod: user.tfaMethod,
-        temp_token: this.jwtService.sign(payload, { expiresIn: '5m' }),
-      };
-    }
+    //   return {
+    //     tfaMethod: user.tfaMethod,
+    //     temp_token: this.jwtService.sign(payload, { expiresIn: '5m' }),
+    //   };
+    // }
 
     // If 2FA is not enabled, return a full access token
     const payload = { email: user.email, sub: user._id };
 
+    const { tfaMethod, tfaEnabled, ...responseUser } = user;
+
     return {
-      user,
-      access_token: this.jwtService.sign(payload),
-      requires2FA: false,
+      user: responseUser,
+      accessToken: this.jwtService.sign(payload),
     };
   }
 }

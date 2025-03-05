@@ -1,7 +1,7 @@
 export enum AuthProvider {
   GOOGLE = 'google',
   EMAIL = 'email',
-}
+} 
 
 export enum AssetType {
   IMAGE = 'image',

@@ -9,15 +9,10 @@ import { authenticator } from 'otplib';
 import * as qrcode from 'qrcode';
 import { Twilio } from 'twilio';
 import { UsersService } from '../users/users.service';
-import {
-  INVALID_TOKEN,
-  PHONE_NUMBER_REQUIRED,
-  USER_NOT_FOUND,
-  TWO_FACTOR_NOT_ENABLED,
-} from 'src/config/constants';
+import MESSAGES from '../../common/messages';
 import { Enable2faDto } from './dto/enable-2fa.dto';
 import { JwtService } from '@nestjs/jwt';
-import { TwoFactorMethod } from 'src/config/enums';
+import { TwoFactorMethod } from 'src/common/enums';
 import { EmailService } from '../email/email.service';
 @Injectable()
 export class TwoFactorService {
@@ -111,7 +106,7 @@ export class TwoFactorService {
   async getUser2faStatus(userId: string) {
     const user = await this.usersService.findById(userId);
     if (!user) {
-      throw new NotFoundException(USER_NOT_FOUND);
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
     }
 
     return {
@@ -128,12 +123,12 @@ export class TwoFactorService {
 
     // If method is SMS, validate phone number
     if (method === TwoFactorMethod.SMS && !phoneNumber) {
-      throw new BadRequestException(PHONE_NUMBER_REQUIRED);
+      throw new BadRequestException(MESSAGES.PHONE_NUMBER_REQUIRED);
     }
 
     const user = await this.usersService.findById(userId);
     if (!user) {
-      throw new NotFoundException(USER_NOT_FOUND);
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
     }
 
     // Generate secret for authenticator method
@@ -167,11 +162,11 @@ export class TwoFactorService {
     const user = await this.usersService.findById(userId);
 
     if (!user) {
-      throw new NotFoundException(USER_NOT_FOUND);
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
     }
 
     if (!user.tfaMethod) {
-      throw new BadRequestException(TWO_FACTOR_NOT_ENABLED);
+      throw new BadRequestException(MESSAGES.TWO_FACTOR_NOT_ENABLED);
     }
 
     let isValid = false;
@@ -184,7 +179,7 @@ export class TwoFactorService {
     }
 
     if (!isValid) {
-      throw new UnauthorizedException(INVALID_TOKEN);
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
 
     // If this is the first verification, enable 2FA
@@ -214,21 +209,21 @@ export class TwoFactorService {
       const decoded = this.jwtService.verify(tempToken);
 
       if (!decoded.requires2FA) {
-        throw new UnauthorizedException(INVALID_TOKEN);
+        throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
       }
 
       const userId = decoded.sub;
       const user = await this.usersService.findById(userId);
 
       if (!user) {
-        throw new NotFoundException(USER_NOT_FOUND);
+        throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
       }
 
       // Verify the 2FA token
       const isValid = await this.verify2fa(userId, token);
 
       if (!isValid.success) {
-        throw new UnauthorizedException(INVALID_TOKEN);
+        throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
       }
 
       // Generate a full access token
@@ -239,7 +234,7 @@ export class TwoFactorService {
         access_token: this.jwtService.sign(payload),
       };
     } catch (error) {
-      throw new UnauthorizedException(INVALID_TOKEN);
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
   }
 }

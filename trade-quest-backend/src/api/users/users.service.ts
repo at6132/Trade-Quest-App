@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from 'src/api/auth/dto/register.dto';
-import { AssetType } from 'src/config/enums';
+import { AssetType } from 'src/common/enums';
 import { UserProfile } from './interfaces/user-profile.interface';
 import { Asset, AssetDocument } from '../assets/schemas/asset.schema';
 

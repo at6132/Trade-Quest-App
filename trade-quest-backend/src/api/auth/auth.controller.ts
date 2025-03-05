@@ -22,14 +22,8 @@ import { Enable2faDto } from './dto/enable-2fa.dto';
 import { Verify2faDto } from './dto/verify-2fa.dto';
 import { TwoFactorService } from './two-factor.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import {
-  USER_ALREADY_EXISTS,
-  USER_NOT_FOUND,
-  INVALID_2FA_METHOD,
-  NO_USER_FROM_GOOGLE,
-  USER_NOT_AUTHENTICATED,
-} from 'src/config/constants';
-import { TwoFactorMethod } from 'src/config/enums';
+import MESSAGES from '../../common/messages';
+import { TwoFactorMethod } from 'src/common/enums';
 import { LoginHistoryInterceptor } from '../login-history/interceptors/login-history.interceptor';
 
 @Controller('auth')
@@ -44,7 +38,7 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
-      throw new BadRequestException(USER_ALREADY_EXISTS);
+      throw new BadRequestException(MESSAGES.USER_ALREADY_EXISTS);
     }
     await this.authService.register(registerDto);
     return {
@@ -74,7 +68,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request) {
     if (!req.user) {
-      throw new UnauthorizedException(NO_USER_FROM_GOOGLE);
+      throw new UnauthorizedException(MESSAGES.NO_USER_FROM_GOOGLE);
     }
     const result = await this.authService.login(req.user as User);
     return {
@@ -88,13 +82,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req: Request): Promise<UserProfile> {
     if (!req.user) {
-      throw new UnauthorizedException(USER_NOT_AUTHENTICATED);
+      throw new UnauthorizedException(MESSAGES.USER_NOT_AUTHENTICATED);
     }
 
     const userId = req.user['id'];
     const profile = await this.usersService.getProfile(userId);
     if (!profile) {
-      throw new UnauthorizedException(USER_NOT_FOUND);
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
     }
 
     return profile;
@@ -150,7 +144,7 @@ export class AuthController {
   ) {
     const user = await this.usersService.findByEmail(body.email);
     if (!user) {
-      throw new NotFoundException(USER_NOT_FOUND);
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
     }
 
     if (body.method === TwoFactorMethod.SMS) {
@@ -170,7 +164,7 @@ export class AuthController {
         data: result,
       };
     }
-    throw new BadRequestException(INVALID_2FA_METHOD);
+    throw new BadRequestException(MESSAGES.INVALID_2FA_METHOD);
   }
 
   @Post('2fa/verify-login')

@@ -8,7 +8,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from 'src/api/users/schemas/user.schema';
-import { INVALID_CREDENTIALS, EMAIL_NOT_VERIFIED } from 'src/config/constants';
+import MESSAGES from '../../common/messages';
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,7 +19,7 @@ export class AuthService {
   async validateUser(loginDto: LoginDto): Promise<any> {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
-      throw new UnauthorizedException(INVALID_CREDENTIALS);
+      throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -27,11 +27,11 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException(INVALID_CREDENTIALS);
+      throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
     }
 
     if (!user.isVerified) {
-      throw new UnauthorizedException(EMAIL_NOT_VERIFIED);
+      throw new UnauthorizedException(MESSAGES.EMAIL_NOT_VERIFIED);
     }
 
     return user;

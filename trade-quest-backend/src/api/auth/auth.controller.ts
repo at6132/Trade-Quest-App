@@ -9,7 +9,6 @@ import {
   UseGuards,
   NotFoundException,
   UseInterceptors,
-  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -68,10 +67,31 @@ export class AuthController {
   @UseInterceptors(LoginHistoryInterceptor)
   @Post('login')
   async login(@Req() req: Request) {
-    const result = await this.authService.login(req.user as User);
+    if (!req.user) {
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
+    }
+    const result = await this.authService.login(req.user as unknown as User);
     return {
       message: 'User logged in successfully',
       data: result,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('verify-email')
+  async verifyEmail(@Req() req: Request) {
+    const userEmail = req?.user?.email;
+    if (!userEmail) {
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
+    }
+
+    const user = await this.usersService.findByEmail(userEmail);
+    if (!user) {
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
+    }
+    await this.usersService.verifyEmail(user.email);
+    return {
+      message: MESSAGES.EMAIL_VERIFIED_SUCCESSFULLY,
     };
   }
 
@@ -87,7 +107,7 @@ export class AuthController {
     if (!req.user) {
       throw new UnauthorizedException(MESSAGES.NO_USER_FROM_GOOGLE);
     }
-    const result = await this.authService.login(req.user as User);
+    const result = await this.authService.login(req.user as unknown as User);
     return {
       success: true,
       message: 'User logged in successfully',
@@ -203,14 +223,6 @@ export class AuthController {
       success: true,
       message: '2FA verified successfully',
       data: result,
-    };
-  }
-
-  @Get('verify-email')
-  async verifyEmail(@Query('token') token: string) {
-    const result = await this.authService.verifyEmail(token);
-    return {
-      message: result.message,
     };
   }
 }

@@ -8,15 +8,12 @@ import { User } from 'src/api/users/schemas/user.schema';
 import MESSAGES from '../../common/messages';
 import { EmailService } from '../email/email.service';
 import { EmailTemplatesService } from '../email/templates/email-templates.service';
-import CONSTANTS from 'src/common/constants';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private emailService: EmailService,
-    private emailTemplatesService: EmailTemplatesService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<any> {
@@ -47,23 +44,6 @@ export class AuthService {
     return responseUser;
   }
 
-  async verifyEmail(token: string): Promise<{ message: string }> {
-    try {
-      const decoded = this.jwtService.verify(token);
-      const user = await this.usersService.findByEmail(decoded.email);
-
-      if (!user) {
-        throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
-      }
-
-      await this.usersService.update(user._id, { isVerified: true });
-
-      return { message: MESSAGES.EMAIL_VERIFIED_SUCCESSFULLY };
-    } catch (error) {
-      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
-    }
-  }
-
   async login(user: User) {
     // // Check if 2FA is enabled
     // if (user.tfaEnabled) {
@@ -80,7 +60,7 @@ export class AuthService {
     // }
 
     // If 2FA is not enabled, return a full access token
-    const payload = { email: user.email, sub: user._id };
+    const payload = { email: user?.email, sub: user?._id };
 
     const { tfaMethod, tfaEnabled, ...responseUser } = user;
 

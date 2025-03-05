@@ -35,39 +35,34 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       return;
     }
 
-    const user = {
-      email: emails[0].value,
-      firstName: name?.givenName || '',
-      lastName: name?.familyName || '',
-      picture: photos?.[0]?.value || '',
-      accessToken,
-    };
-
-    const existingUser = await this.usersService.findByEmail(user.email);
+    const existingUser = await this.usersService.findByEmail(emails[0].value);
     if (existingUser) {
-      done(null, existingUser);
+      done(null, {
+        id: existingUser._id.toString(),
+        email: existingUser.email,
+      });
       return;
     }
 
     const newUser = await this.usersService.create({
-      email: user.email,
-      name: user.firstName + ' ' + user.lastName,
-      username: user.email,
+      email: emails[0].value,
+      name: name?.givenName + ' ' + name?.familyName,
+      username: emails[0].value,
       password: ' ',
       provider: AuthProvider.GOOGLE,
       isVerified: _json.email_verified || false,
     });
 
     await this.assetsService.create({
-      filename: user.email,
-      originalname: user.email,
+      filename: emails[0].value,
+      originalname: emails[0].value,
       mimetype: 'image/png',
       size: 100,
-      url: user.picture,
+      url: photos?.[0]?.value || '',
       type: AssetType.AVATAR,
       uploadedBy: newUser,
     });
 
-    done(null, newUser);
+    done(null, { id: newUser._id.toString(), email: newUser.email });
   }
 }

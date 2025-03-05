@@ -54,7 +54,10 @@ export class AuthController {
     );
 
     // Send verification email
-    await this.emailService.sendVerificationEmail(user.email, verificationToken);
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
+    );
 
     return {
       message: MESSAGES.EMAIL_VERIFICATION_SENT,
@@ -122,7 +125,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('2fa/enable')
   async enable2fa(@Req() req, @Body() enable2faDto: Enable2faDto) {
-    const result = await this.twoFactorService.enable2fa(req.user.id, enable2faDto);
+    const result = await this.twoFactorService.enable2fa(
+      req.user.id,
+      enable2faDto,
+    );
     return {
       success: true,
       message: '2FA enabled successfully',
@@ -133,7 +139,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('2fa/verify')
   async verify2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
-    const result = await this.twoFactorService.verify2fa(req.user.id, verify2faDto.token);
+    const result = await this.twoFactorService.verify2fa(
+      req.user.id,
+      verify2faDto.token,
+    );
     return {
       success: true,
       message: '2FA verified successfully',
@@ -171,7 +180,10 @@ export class AuthController {
         data: result,
       };
     } else if (body.method === TwoFactorMethod.EMAIL) {
-      const result = await this.twoFactorService.sendEmailOtp(user.email, user.name);
+      const result = await this.twoFactorService.sendEmailOtp(
+        user.email,
+        user.name,
+      );
       return {
         success: true,
         message: 'OTP sent successfully',
@@ -183,7 +195,10 @@ export class AuthController {
 
   @Post('2fa/verify-login')
   async verifyLogin2fa(@Body() body: { token: string; tempToken: string }) {
-    const result = await this.twoFactorService.verify2faLogin(body.token, body.tempToken);
+    const result = await this.twoFactorService.verify2faLogin(
+      body.token,
+      body.tempToken,
+    );
     return {
       success: true,
       message: '2FA verified successfully',

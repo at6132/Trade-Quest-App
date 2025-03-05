@@ -27,9 +27,13 @@ export class TransformInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map(response => {
+      map((response) => {
         // If response only contains a message, don't include it as data
-        if (response && Object.keys(response).length === 1 && response.message) {
+        if (
+          response &&
+          Object.keys(response).length === 1 &&
+          response.message
+        ) {
           return {
             success: true,
             message: response.message,
@@ -53,4 +57,4 @@ export class TransformInterceptor<T>
       }),
     );
   }
-} 
+}

@@ -9,7 +9,10 @@ export default registerAs('email', () => ({
   fromEmail: process.env.MAIL_FROM_EMAIL,
   fromName: process.env.MAIL_FROM_NAME,
   appUrl: process.env.APP_URL,
-  verificationTokenExpiry: parseInt(process.env.VERIFICATION_TOKEN_EXPIRY || '86400', 10),
+  verificationTokenExpiry: parseInt(
+    process.env.VERIFICATION_TOKEN_EXPIRY || '86400',
+    10,
+  ),
   resetTokenExpiry: parseInt(process.env.RESET_TOKEN_EXPIRY || '3600', 10),
   otpExpiry: parseInt(process.env.OTP_EXPIRY || '600', 10),
-})); 
+}));

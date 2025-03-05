@@ -9,7 +9,7 @@ export class EmailTemplatesService {
   getVerificationEmailTemplate(name: string, token: string): string {
     const emailConfig = this.configService.get('email');
     const verificationUrl = `${emailConfig.appUrl}/verify-email?token=${token}`;
-    
+
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Hello ${name},</h2>
@@ -29,7 +29,7 @@ export class EmailTemplatesService {
 
   getPasswordResetTemplate(name: string, token: string): string {
     const resetUrl = `${this.configService.get('APP_URL')}/reset-password?token=${token}`;
-    
+
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Hello ${name},</h2>
@@ -58,4 +58,4 @@ export class EmailTemplatesService {
       </div>
     `;
   }
-} 
+}

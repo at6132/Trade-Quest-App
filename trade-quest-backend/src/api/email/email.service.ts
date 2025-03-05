@@ -14,7 +14,7 @@ export class EmailService {
     private emailTemplatesService: EmailTemplatesService,
   ) {
     const emailConfig = this.configService.get('email');
-    
+
     this.transporter = nodemailer.createTransport({
       host: emailConfig.host,
       port: emailConfig.port,
@@ -35,7 +35,7 @@ export class EmailService {
     try {
       const { to, subject, text, html } = options;
       const emailConfig = this.configService.get('email');
-      
+
       await this.transporter.sendMail({
         from: `"${emailConfig.fromName}" <${emailConfig.fromEmail}>`,
         to,
@@ -43,7 +43,7 @@ export class EmailService {
         text,
         html,
       });
-      
+
       this.logger.log(`Email sent successfully to ${to}`);
       return true;
     } catch (error) {
@@ -53,11 +53,14 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<boolean> {
-    const html = this.emailTemplatesService.getVerificationEmailTemplate(email, token);
+    const html = this.emailTemplatesService.getVerificationEmailTemplate(
+      email,
+      token,
+    );
     return await this.sendMail({
       to: email,
       subject: MESSAGES.VERIFICATION_EMAIL_HEADER,
       html,
     });
   }
-} 
+}

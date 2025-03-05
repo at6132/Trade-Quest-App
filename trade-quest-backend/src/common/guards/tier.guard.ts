@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import CONSTANTS from '../constants'; 
+import CONSTANTS from '../constants';
 
 @Injectable()
 export class TierGuard implements CanActivate {

@@ -1,6 +1,6 @@
- const CONSTANTS = {
-    JWT_EXPIRES_IN: '1d',
-  SALT_ROUNDS: 10,  
+const CONSTANTS = {
+  JWT_EXPIRES_IN: '1d',
+  SALT_ROUNDS: 10,
   DEFAULT_AVATAR: 'default-avatar.png',
   MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
   PASSWORD_REGEX:

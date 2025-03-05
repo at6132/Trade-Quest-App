@@ -12,7 +12,13 @@ import { LoginHistoryModule } from '../login-history/login-history.module';
 import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [UsersModule, PassportModule, AssetsModule, LoginHistoryModule, EmailModule],
+  imports: [
+    UsersModule,
+    PassportModule,
+    AssetsModule,
+    LoginHistoryModule,
+    EmailModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,

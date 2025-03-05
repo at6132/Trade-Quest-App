@@ -1,13 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from 'src/api/users/schemas/user.schema';
-import MESSAGES from '../../common/messages';
-import { EmailService } from '../email/email.service';
-import { EmailTemplatesService } from '../email/templates/email-templates.service';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -16,10 +14,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(loginDto: LoginDto): Promise<any> {
+  async validateUser(loginDto: LoginDto): Promise<User | null> {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
-      throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
+      return null;
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -27,11 +25,11 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
+      return null;
     }
 
     if (!user.isVerified) {
-      throw new UnauthorizedException(MESSAGES.EMAIL_NOT_VERIFIED);
+      return null;
     }
 
     return user;
@@ -60,9 +58,8 @@ export class AuthService {
     // }
 
     // If 2FA is not enabled, return a full access token
-    const payload = { email: user?.email, sub: user?._id };
-
-    const { tfaMethod, tfaEnabled, ...responseUser } = user;
+    const payload: JwtPayload = { email: user?.email, sub: user?._id };
+    const { tfaMethod, tfaEnabled, password, ...responseUser } = user;
 
     return {
       user: responseUser,

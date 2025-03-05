@@ -22,11 +22,11 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.userModel.findById(id);
+    return this.userModel.findById(id).lean();
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email });
+    return this.userModel.findOne({ email }).lean();
   }
 
   async verifyEmail(email: string): Promise<User | null> {

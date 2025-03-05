@@ -15,6 +15,7 @@ const MESSAGES = {
   USER_ALREADY_EXISTS: 'User already exists',
   NO_USER_FROM_GOOGLE: 'No user from google',
   USER_REGISTERED_SUCCESSFULLY: 'User registered successfully',
+  USER_LOGGED_IN_SUCCESSFULLY: 'User logged in successfully',
 
   // Two Factor
   INVALID_2FA_METHOD: 'Invalid 2FA method',

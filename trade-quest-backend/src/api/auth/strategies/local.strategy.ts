@@ -3,6 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { LoginDto } from '../dto/login.dto';
+import { User } from 'src/api/users/schemas/user.schema';
+import MESSAGES from 'src/common/messages';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -13,18 +15,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string): Promise<any> {
+  async validate(email: string, password: string): Promise<User | null> {
     const loginDto: LoginDto = { email, password };
     const user = await this.authService.validateUser(loginDto);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
     }
-    const {
-      password: userPassword,
-      tfaSecret,
-      tfaRecoveryCodes,
-      ...userWithoutPassword
-    } = user;
-    return userWithoutPassword;
+    return user;
   }
 }

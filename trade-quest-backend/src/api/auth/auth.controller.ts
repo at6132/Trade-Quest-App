@@ -8,7 +8,6 @@ import {
   Req,
   UseGuards,
   NotFoundException,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -66,31 +65,20 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('verify-email')
   async verifyEmail(@Req() req: Request) {
-    const userEmail = req?.user?.email;
-    if (!userEmail) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
-    }
-
-    const user = await this.usersService.findByEmail(userEmail);
-    if (!user) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
-    }
-    await this.usersService.verifyEmail(user.email);
+    const userEmail = (req?.user as User)?.email;
+    await this.usersService.verifyEmail(userEmail);
     return {
       message: MESSAGES.EMAIL_VERIFIED_SUCCESSFULLY,
     };
   }
 
   @UseGuards(LocalAuthGuard)
-  @UseInterceptors(LoginHistoryInterceptor)
+  // @UseInterceptors(LoginHistoryInterceptor)
   @Post('login')
   async login(@Req() req: Request) {
-    if (!req.user) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
-    }
-    const result = await this.authService.login(req.user as unknown as User);
+    const result = await this.authService.login(req.user as User);
     return {
-      message: 'User logged in successfully',
+      message: MESSAGES.USER_LOGGED_IN_SUCCESSFULLY,
       data: result,
     };
   }

@@ -9,9 +9,10 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { AssetsModule } from '../assets/assets.module';
 import { TwoFactorService } from './two-factor.service';
 import { LoginHistoryModule } from '../login-history/login-history.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [UsersModule, PassportModule, AssetsModule, LoginHistoryModule],
+  imports: [UsersModule, PassportModule, AssetsModule, LoginHistoryModule, EmailModule],
   controllers: [AuthController],
   providers: [
     AuthService,

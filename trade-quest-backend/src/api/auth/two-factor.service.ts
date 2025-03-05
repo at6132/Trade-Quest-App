@@ -7,7 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import * as qrcode from 'qrcode';
-import * as nodemailer from 'nodemailer';
 import { Twilio } from 'twilio';
 import { UsersService } from '../users/users.service';
 import {
@@ -15,17 +14,14 @@ import {
   PHONE_NUMBER_REQUIRED,
   USER_NOT_FOUND,
   TWO_FACTOR_NOT_ENABLED,
-  MAIL_FROM_NAME,
-  MAIL_FROM_EMAIL,
 } from 'src/config/constants';
 import { Enable2faDto } from './dto/enable-2fa.dto';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorMethod } from 'src/config/enums';
-
+import { EmailService } from '../email/email.service';
 @Injectable()
 export class TwoFactorService {
   private twilioClient: Twilio;
-  private emailTransporter: nodemailer.Transporter;
   private generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
@@ -34,23 +30,13 @@ export class TwoFactorService {
     private configService: ConfigService,
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {
     // Initialize Twilio client for SMS
     this.twilioClient = new Twilio(
       this.configService.get('TWILIO_ACCOUNT_SID'),
       this.configService.get('TWILIO_AUTH_TOKEN'),
     );
-
-    // Initialize email transporter
-    this.emailTransporter = nodemailer.createTransport({
-      host: this.configService.get('MAIL_HOST'),
-      port: this.configService.get<number>('MAIL_PORT'),
-      secure: true,
-      auth: {
-        user: this.configService.get('MAIL_USER'),
-        pass: this.configService.get('MAIL_PASSWORD'),
-      },
-    });
   }
 
   // Generate secret for authenticator app
@@ -102,8 +88,7 @@ export class TwoFactorService {
     const otp = this.generateOtp();
 
     try {
-      await this.emailTransporter.sendMail({
-        from: `"${MAIL_FROM_NAME}" <${MAIL_FROM_EMAIL}>`,
+      await this.emailService.sendMail({
         to: email,
         subject: 'Your Verification Code',
         html: `

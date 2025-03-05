@@ -4,6 +4,8 @@ import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './config/winston.config';
 import * as useragent from 'express-useragent';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   try {
@@ -33,6 +35,9 @@ async function bootstrap() {
         },
       }),
     );
+
+    app.useGlobalInterceptors(new TransformInterceptor());
+    app.useGlobalFilters(new HttpExceptionFilter());
 
     const port = process.env.PORT || 3000;
     await app.listen(port);

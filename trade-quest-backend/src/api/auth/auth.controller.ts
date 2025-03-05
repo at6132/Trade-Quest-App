@@ -42,18 +42,26 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    const user = await this.usersService.findByEmail(registerDto.email);
-    if (user) {
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
+    if (existingUser) {
       throw new BadRequestException(USER_ALREADY_EXISTS);
     }
-    return this.authService.register(registerDto);
+    await this.authService.register(registerDto);
+    return {
+      message: 'User registered successfully',
+    };
   }
 
   @UseGuards(LocalAuthGuard)
   @UseInterceptors(LoginHistoryInterceptor)
   @Post('login')
   async login(@Req() req: Request) {
-    return this.authService.login(req.user as User);
+    const result = await this.authService.login(req.user as User);
+    return {
+      success: true,
+      message: 'User logged in successfully',
+      data: result,
+    };
   }
 
   @Get('google')
@@ -68,7 +76,12 @@ export class AuthController {
     if (!req.user) {
       throw new UnauthorizedException(NO_USER_FROM_GOOGLE);
     }
-    return this.authService.login(req.user as User);
+    const result = await this.authService.login(req.user as User);
+    return {
+      success: true,
+      message: 'User logged in successfully',
+      data: result,
+    };
   }
 
   @Get('profile')
@@ -90,25 +103,45 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('2fa/setup')
   async setup2fa(@Req() req) {
-    return this.twoFactorService.getUser2faStatus(req.user.id);
+    const result = await this.twoFactorService.getUser2faStatus(req.user.id);
+    return {
+      success: true,
+      message: '2FA setup status retrieved successfully',
+      data: result,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('2fa/enable')
   async enable2fa(@Req() req, @Body() enable2faDto: Enable2faDto) {
-    return this.twoFactorService.enable2fa(req.user.id, enable2faDto);
+    const result = await this.twoFactorService.enable2fa(req.user.id, enable2faDto);
+    return {
+      success: true,
+      message: '2FA enabled successfully',
+      data: result,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('2fa/verify')
   async verify2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
-    return this.twoFactorService.verify2fa(req.user.id, verify2faDto.token);
+    const result = await this.twoFactorService.verify2fa(req.user.id, verify2faDto.token);
+    return {
+      success: true,
+      message: '2FA verified successfully',
+      data: result,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('2fa/disable')
   async disable2fa(@Req() req) {
-    return this.twoFactorService.disable2fa(req.user.id);
+    const result = await this.twoFactorService.disable2fa(req.user.id);
+    return {
+      success: true,
+      message: '2FA disabled successfully',
+      data: result,
+    };
   }
 
   @Post('2fa/send-otp')
@@ -121,18 +154,32 @@ export class AuthController {
     }
 
     if (body.method === TwoFactorMethod.SMS) {
-      return this.twoFactorService.sendSmsOtp(
+      const result = await this.twoFactorService.sendSmsOtp(
         body.phoneNumber || user.phoneNumber,
       );
+      return {
+        success: true,
+        message: 'OTP sent successfully',
+        data: result,
+      };
     } else if (body.method === TwoFactorMethod.EMAIL) {
-      return this.twoFactorService.sendEmailOtp(user.email, user.name);
+      const result = await this.twoFactorService.sendEmailOtp(user.email, user.name);
+      return {
+        success: true,
+        message: 'OTP sent successfully',
+        data: result,
+      };
     }
-
     throw new BadRequestException(INVALID_2FA_METHOD);
   }
 
   @Post('2fa/verify-login')
   async verifyLogin2fa(@Body() body: { token: string; tempToken: string }) {
-    return this.twoFactorService.verify2faLogin(body.token, body.tempToken);
+    const result = await this.twoFactorService.verify2faLogin(body.token, body.tempToken);
+    return {
+      success: true,
+      message: '2FA verified successfully',
+      data: result,
+    };
   }
 }

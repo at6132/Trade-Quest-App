@@ -9,6 +9,7 @@ import {
   UseGuards,
   NotFoundException,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -25,6 +26,9 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import MESSAGES from '../../common/messages';
 import { TwoFactorMethod } from 'src/common/enums';
 import { LoginHistoryInterceptor } from '../login-history/interceptors/login-history.interceptor';
+import CONSTANTS from 'src/common/constants';
+import { EmailService } from '../email/email.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
@@ -32,6 +36,8 @@ export class AuthController {
     private authService: AuthService,
     private usersService: UsersService,
     private twoFactorService: TwoFactorService,
+    private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   @Post('register')
@@ -40,9 +46,18 @@ export class AuthController {
     if (existingUser) {
       throw new BadRequestException(MESSAGES.USER_ALREADY_EXISTS);
     }
-    await this.authService.register(registerDto);
+    const user = await this.authService.register(registerDto);
+    // Generate verification token
+    const verificationToken = this.jwtService.sign(
+      { email: user.email },
+      { expiresIn: CONSTANTS.EMAIL_VERIFICATION_EXPIRES_IN },
+    );
+
+    // Send verification email
+    await this.emailService.sendVerificationEmail(user.email, verificationToken);
+
     return {
-      message: MESSAGES.USER_REGISTERED_SUCCESSFULLY,
+      message: MESSAGES.EMAIL_VERIFICATION_SENT,
     };
   }
 
@@ -173,6 +188,14 @@ export class AuthController {
       success: true,
       message: '2FA verified successfully',
       data: result,
+    };
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    const result = await this.authService.verifyEmail(token);
+    return {
+      message: result.message,
     };
   }
 }

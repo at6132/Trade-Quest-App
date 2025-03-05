@@ -1,13 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { EmailTemplatesService } from './templates/email-templates.service';
+import MESSAGES from 'src/common/messages';
 
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;
   private readonly logger = new Logger(EmailService.name);
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private emailTemplatesService: EmailTemplatesService,
+  ) {
     const emailConfig = this.configService.get('email');
     
     this.transporter = nodemailer.createTransport({
@@ -45,5 +50,14 @@ export class EmailService {
       this.logger.error(`Failed to send email: ${error.message}`, error.stack);
       return false;
     }
+  }
+
+  async sendVerificationEmail(email: string, token: string): Promise<boolean> {
+    const html = this.emailTemplatesService.getVerificationEmailTemplate(email, token);
+    return await this.sendMail({
+      to: email,
+      subject: MESSAGES.VERIFICATION_EMAIL_HEADER,
+      html,
+    });
   }
 } 

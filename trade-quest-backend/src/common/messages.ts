@@ -1,4 +1,4 @@
- const MESSAGES = {
+const MESSAGES = {
   // Auth
   PASSWORD_ERROR_MESSAGE:
     'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
@@ -26,6 +26,12 @@
   // Mail
   MAIL_FROM_EMAIL: 'MAIL_FROM_EMAIL',
   MAIL_FROM_NAME: 'MAIL_FROM_NAME',
+
+  // Email Verification
+  VERIFICATION_EMAIL_HEADER: 'Verify your email',
+  EMAIL_VERIFICATION_SENT: 'Verification email has been sent',
+  EMAIL_VERIFIED_SUCCESSFULLY: 'Email verified successfully',
+  EMAIL_VERIFICATION_FAILED: 'Email verification failed',
 };
 
 export default MESSAGES;

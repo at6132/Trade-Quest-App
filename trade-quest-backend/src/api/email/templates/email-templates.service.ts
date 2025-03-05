@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import CONSTANTS from 'src/common/constants';
 
 @Injectable()
 export class EmailTemplatesService {
@@ -20,7 +21,7 @@ export class EmailTemplatesService {
             Verify Email
           </a>
         </div>
-        <p>This link will expire in 24 hours.</p>
+        <p>This link will expire in ${CONSTANTS.EMAIL_VERIFICATION_EXPIRES_IN}.</p>
         <p>If you didn't create an account, please ignore this email.</p>
       </div>
     `;

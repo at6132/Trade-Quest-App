@@ -7,7 +7,10 @@ const CONSTANTS = {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
   MIN_TIER_KEY: 'minTier',
   ROLES_KEY: 'roles',
+  NODEMAILER: 'NODEMAILER',
   EMAIL_VERIFICATION_EXPIRES_IN: '24h',
+  RESET_TOKEN_EXPIRY: '3600',
+  OTP_EXPIRY: '600',
 };
 
 export default CONSTANTS;

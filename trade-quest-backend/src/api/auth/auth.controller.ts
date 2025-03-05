@@ -46,16 +46,16 @@ export class AuthController {
     if (existingUser) {
       throw new BadRequestException(MESSAGES.USER_ALREADY_EXISTS);
     }
-    const user = await this.authService.register(registerDto);
+    await this.authService.register(registerDto);
     // Generate verification token
     const verificationToken = this.jwtService.sign(
-      { email: user.email },
+      { email: registerDto.email },
       { expiresIn: CONSTANTS.EMAIL_VERIFICATION_EXPIRES_IN },
     );
 
     // Send verification email
     await this.emailService.sendVerificationEmail(
-      user.email,
+      registerDto.email,
       verificationToken,
     );
 

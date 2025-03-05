@@ -23,10 +23,6 @@ const MESSAGES = {
   TWO_FACTOR_NOT_ENABLED: '2FA is not enabled',
   INVALID_TOKEN: 'Invalid token',
 
-  // Mail
-  MAIL_FROM_EMAIL: 'MAIL_FROM_EMAIL',
-  MAIL_FROM_NAME: 'MAIL_FROM_NAME',
-
   // Email Verification
   VERIFICATION_EMAIL_HEADER: 'Verify your email',
   EMAIL_VERIFICATION_SENT: 'Verification email has been sent',

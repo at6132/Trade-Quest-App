@@ -39,18 +39,9 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
+    const { password, tfaSecret, temporaryOtp, ...responseUser } = user;
 
-    return {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      username: user.username,
-      isVerified: user.isVerified,
-      provider: user.provider,
-      xp: user.xp,
-      tier: user.tier,
-      assets: user.assets,
-    };
+    return responseUser;
   }
 
   async login(user: User) {

@@ -42,7 +42,7 @@ export class AuthController {
     }
     await this.authService.register(registerDto);
     return {
-      message: 'User registered successfully',
+      message: MESSAGES.USER_REGISTERED_SUCCESSFULLY,
     };
   }
 
@@ -52,7 +52,6 @@ export class AuthController {
   async login(@Req() req: Request) {
     const result = await this.authService.login(req.user as User);
     return {
-      success: true,
       message: 'User logged in successfully',
       data: result,
     };

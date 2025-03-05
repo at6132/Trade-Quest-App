@@ -8,7 +8,7 @@ export class EmailTemplatesService {
 
   getVerificationEmailTemplate(name: string, token: string): string {
     const emailConfig = this.configService.get('email');
-    const verificationUrl = `${emailConfig.appUrl}/verify-email?token=${token}`;
+    const verificationUrl = `${emailConfig.appUrl}/api/auth/verify-email?token=${token}`;
 
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

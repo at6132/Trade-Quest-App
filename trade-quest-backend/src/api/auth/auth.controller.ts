@@ -63,20 +63,6 @@ export class AuthController {
     };
   }
 
-  @UseGuards(LocalAuthGuard)
-  @UseInterceptors(LoginHistoryInterceptor)
-  @Post('login')
-  async login(@Req() req: Request) {
-    if (!req.user) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
-    }
-    const result = await this.authService.login(req.user as unknown as User);
-    return {
-      message: 'User logged in successfully',
-      data: result,
-    };
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('verify-email')
   async verifyEmail(@Req() req: Request) {
@@ -92,6 +78,20 @@ export class AuthController {
     await this.usersService.verifyEmail(user.email);
     return {
       message: MESSAGES.EMAIL_VERIFIED_SUCCESSFULLY,
+    };
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @UseInterceptors(LoginHistoryInterceptor)
+  @Post('login')
+  async login(@Req() req: Request) {
+    if (!req.user) {
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
+    }
+    const result = await this.authService.login(req.user as unknown as User);
+    return {
+      message: 'User logged in successfully',
+      data: result,
     };
   }
 

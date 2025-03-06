@@ -53,7 +53,7 @@ export class EmailTemplatesService {
         <h2>Hello ${name},</h2>
         <p>Your verification code is:</p>
         <h1 style="font-size: 32px; letter-spacing: 5px; text-align: center; padding: 10px; background: #f5f5f5; border-radius: 4px;">${otp}</h1>
-        <p>This code will expire in 10 minutes.</p>
+        <p>This code will expire in ${CONSTANTS.OTP_EXPIRY}.</p>
         <p>If you didn't request this code, please ignore this email.</p>
       </div>
     `;

@@ -41,14 +41,31 @@ export class EmailService {
     }
   }
 
-  async sendVerificationEmail(email: string, token: string): Promise<boolean> {
+  async sendVerificationEmail(
+    name: string,
+    email: string,
+    token: string,
+  ): Promise<boolean> {
     const html = this.emailTemplatesService.getVerificationEmailTemplate(
-      email,
+      name,
       token,
     );
     return await this.sendMail({
       to: email,
       subject: MESSAGES.VERIFICATION_EMAIL_HEADER,
+      html,
+    });
+  }
+
+  async sendOtpEmail(
+    name: string,
+    email: string,
+    otp: string,
+  ): Promise<boolean> {
+    const html = this.emailTemplatesService.getOtpEmailTemplate(name, otp);
+    return await this.sendMail({
+      to: email,
+      subject: MESSAGES.OTP_EMAIL_HEADER,
       html,
     });
   }

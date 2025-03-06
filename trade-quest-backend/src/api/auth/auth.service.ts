@@ -6,13 +6,21 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from 'src/api/users/schemas/user.schema';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import CONSTANTS from 'src/common/constants';
+import { TwoFactorMethod } from 'src/common/enums';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
+
+  private generateOtp(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 
   async validateUser(loginDto: LoginDto): Promise<User | null> {
     const user = await this.usersService.findByEmail(loginDto.email);
@@ -43,23 +51,22 @@ export class AuthService {
   }
 
   async login(user: User) {
-    // // Check if 2FA is enabled
-    // if (user.tfaEnabled) {
-    //   // Return a temporary token that can only be used for 2FA verification
-    //   const payload = {
-    //     sub: user._id,
-    //     email: user.email,
-    //   };
+    let payload: JwtPayload = { email: user?.email, sub: user?._id };
+    if (user.tfaEnabled) {
+      if (user.tfaMethod === TwoFactorMethod.EMAIL) {
+        const otp = this.generateOtp();
+        await this.emailService.sendOtpEmail(user.name, user.email, otp);
+        return {
+          tfaEnabled: user.tfaEnabled,
+          tfaMethod: user.tfaMethod,
+          tempToken: this.jwtService.sign(payload, {
+            expiresIn: CONSTANTS.OTP_EXPIRY,
+          }),
+        };
+      }
+    }
 
-    //   return {
-    //     tfaMethod: user.tfaMethod,
-    //     temp_token: this.jwtService.sign(payload, { expiresIn: '5m' }),
-    //   };
-    // }
-
-    // If 2FA is not enabled, return a full access token
-    const payload: JwtPayload = { email: user?.email, sub: user?._id };
-    const { tfaMethod, tfaEnabled, password, ...responseUser } = user;
+    const { password, ...responseUser } = user;
 
     return {
       user: responseUser,

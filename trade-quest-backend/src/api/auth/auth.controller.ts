@@ -53,6 +53,7 @@ export class AuthController {
 
     // Send verification email
     await this.emailService.sendVerificationEmail(
+      registerDto.name,
       registerDto.email,
       verificationToken,
     );

@@ -24,7 +24,8 @@ const MESSAGES = {
   TWO_FACTOR_NOT_ENABLED: '2FA is not enabled',
   INVALID_TOKEN: 'Invalid token',
 
-  // Email Verification
+  // Email
+  OTP_EMAIL_HEADER: 'OTP for 2FA Verification',
   VERIFICATION_EMAIL_HEADER: 'Verify your email',
   EMAIL_VERIFICATION_SENT: 'Verification email has been sent',
   EMAIL_VERIFIED_SUCCESSFULLY: 'Email verified successfully',

@@ -43,7 +43,7 @@ export class User {
   @Prop({ default: false })
   tfaEnabled: boolean;
 
-  @Prop({ enum: TwoFactorMethod, default: null })
+  @Prop({ enum: TwoFactorMethod })
   tfaMethod: string;
 
   @Prop()

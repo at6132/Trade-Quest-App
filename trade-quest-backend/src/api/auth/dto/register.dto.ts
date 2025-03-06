@@ -30,6 +30,10 @@ export class RegisterDto {
   username: string;
 
   @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+
+  @IsString()
   @MinLength(8)
   @Matches(CONSTANTS.PASSWORD_REGEX, {
     message: MESSAGES.PASSWORD_ERROR_MESSAGE,

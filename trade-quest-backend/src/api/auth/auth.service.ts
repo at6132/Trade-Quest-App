@@ -9,6 +9,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import CONSTANTS from 'src/common/constants';
 import { TwoFactorMethod } from 'src/common/enums';
 import { EmailService } from '../email/email.service';
+import { SmsService } from '../sms/sms.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private emailService: EmailService,
+    private smsService: SmsService,
   ) {}
 
   private generateOtp(): string {
@@ -53,9 +55,15 @@ export class AuthService {
   async login(user: User) {
     let payload: JwtPayload = { email: user?.email, sub: user?._id };
     if (user.tfaEnabled) {
-      if (user.tfaMethod === TwoFactorMethod.EMAIL) {
+      if (
+        user.tfaMethod === TwoFactorMethod.EMAIL ||
+        user.tfaMethod === TwoFactorMethod.SMS
+      ) {
         const otp = this.generateOtp();
-        await this.emailService.sendOtpEmail(user.name, user.email, otp);
+        user.tfaMethod === TwoFactorMethod.EMAIL
+          ? await this.emailService.sendOtpEmail(user.name, user.email, otp)
+          : await this.smsService.sendOtp(user.phoneNumber, otp);
+
         return {
           tfaEnabled: user.tfaEnabled,
           tfaMethod: user.tfaMethod,

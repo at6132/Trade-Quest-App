@@ -7,7 +7,6 @@ import {
   Get,
   Req,
   UseGuards,
-  NotFoundException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -22,8 +21,6 @@ import { Verify2faDto } from './dto/verify-2fa.dto';
 import { TwoFactorService } from './two-factor.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import MESSAGES from '../../common/messages';
-import { TwoFactorMethod } from 'src/common/enums';
-import { LoginHistoryInterceptor } from '../login-history/interceptors/login-history.interceptor';
 import CONSTANTS from 'src/common/constants';
 import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
@@ -121,17 +118,6 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('2fa/setup')
-  async setup2fa(@Req() req) {
-    const result = await this.twoFactorService.getUser2faStatus(req.user.id);
-    return {
-      success: true,
-      message: '2FA setup status retrieved successfully',
-      data: result,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post('2fa/enable')
   async enable2fa(@Req() req, @Body() enable2faDto: Enable2faDto) {
     const result = await this.twoFactorService.enable2fa(
@@ -141,20 +127,6 @@ export class AuthController {
     return {
       success: true,
       message: '2FA enabled successfully',
-      data: result,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('2fa/verify')
-  async verify2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
-    const result = await this.twoFactorService.verify2fa(
-      req.user.id,
-      verify2faDto.token,
-    );
-    return {
-      success: true,
-      message: '2FA verified successfully',
       data: result,
     };
   }
@@ -170,43 +142,12 @@ export class AuthController {
     };
   }
 
-  @Post('2fa/send-otp')
-  async sendOtp(
-    @Body() body: { email: string; method: string; phoneNumber?: string },
-  ) {
-    const user = await this.usersService.findByEmail(body.email);
-    if (!user) {
-      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
-    }
-
-    if (body.method === TwoFactorMethod.SMS) {
-      const result = await this.twoFactorService.sendSmsOtp(
-        body.phoneNumber || user.phoneNumber,
-      );
-      return {
-        success: true,
-        message: 'OTP sent successfully',
-        data: result,
-      };
-    } else if (body.method === TwoFactorMethod.EMAIL) {
-      const result = await this.twoFactorService.sendEmailOtp(
-        user.email,
-        user.name,
-      );
-      return {
-        success: true,
-        message: 'OTP sent successfully',
-        data: result,
-      };
-    }
-    throw new BadRequestException(MESSAGES.INVALID_2FA_METHOD);
-  }
-
-  @Post('2fa/verify-login')
-  async verifyLogin2fa(@Body() body: { token: string; tempToken: string }) {
-    const result = await this.twoFactorService.verify2faLogin(
-      body.token,
-      body.tempToken,
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/verify')
+  async verify2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
+    const result = await this.twoFactorService.verify2fa(
+      req.user.id,
+      verify2faDto.token,
     );
     return {
       success: true,

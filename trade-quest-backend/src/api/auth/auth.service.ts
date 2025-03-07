@@ -20,7 +20,7 @@ export class AuthService {
     private smsService: SmsService,
   ) {}
 
-  private generateOtp(): string {
+  generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
@@ -47,7 +47,7 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
-    const { password, tfaSecret, temporaryOtp, ...responseUser } = user;
+    const { password, tfaSecret, tempOtp, ...responseUser } = user;
 
     return responseUser;
   }

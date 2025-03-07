@@ -16,7 +16,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { UserProfile } from 'src/api/users/interfaces/user-profile.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { Enable2faDto } from './dto/enable-2fa.dto';
 import { Verify2faDto } from './dto/verify-2fa.dto';
 import { TwoFactorService } from './two-factor.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -24,6 +23,7 @@ import MESSAGES from '../../common/messages';
 import CONSTANTS from 'src/common/constants';
 import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
+import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -118,40 +118,31 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('2fa/enable')
-  async enable2fa(@Req() req, @Body() enable2faDto: Enable2faDto) {
-    const result = await this.twoFactorService.enable2fa(
-      req.user.id,
-      enable2faDto,
+  @Post('2fa/request-enable')
+  async requestEnable2fa(
+    @Req() req,
+    @Body() requestEnable2faDto: RequestEnable2faDto,
+  ) {
+    const result = await this.twoFactorService.setup2fa(
+      req.user as User,
+      requestEnable2faDto.method,
+      requestEnable2faDto?.phoneNumber,
     );
     return {
-      success: true,
-      message: '2FA enabled successfully',
+      message: MESSAGES.TWO_FACTOR_SETUP_INITIATED,
       data: result,
     };
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('2fa/disable')
-  async disable2fa(@Req() req) {
-    const result = await this.twoFactorService.disable2fa(req.user.id);
-    return {
-      success: true,
-      message: '2FA disabled successfully',
-      data: result,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('2fa/verify')
-  async verify2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
-    const result = await this.twoFactorService.verify2fa(
-      req.user.id,
+  @Post('2fa/confirm')
+  async confirm2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
+    const result = await this.twoFactorService.confirm2fa(
+      req.user._id,
       verify2faDto.token,
     );
     return {
-      success: true,
-      message: '2FA verified successfully',
+      message: MESSAGES.TWO_FACTOR_ENABLED,
       data: result,
     };
   }

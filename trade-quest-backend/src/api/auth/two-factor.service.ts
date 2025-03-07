@@ -10,15 +10,21 @@ import * as qrcode from 'qrcode';
 import { UsersService } from '../users/users.service';
 import MESSAGES from '../../common/messages';
 import { Enable2faDto } from './dto/enable-2fa.dto';
-import { JwtService } from '@nestjs/jwt';
 import { TwoFactorMethod } from 'src/common/enums';
+import { EmailService } from '../email/email.service';
+import { SmsService } from '../sms/sms.service';
+import { User } from '../users/schemas/user.schema';
+import { AuthService } from './auth.service';
+import { TwoFactorSetupResponse } from './interfaces/two-factor.interface';
 
 @Injectable()
 export class TwoFactorService {
   constructor(
     private configService: ConfigService,
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private emailService: EmailService,
+    private smsService: SmsService,
+    private authService: AuthService,
   ) {}
 
   // Generate secret for authenticator app
@@ -42,10 +48,52 @@ export class TwoFactorService {
     return authenticator.verify({ token, secret });
   }
 
+  async setup2fa(
+    user: User,
+    method: TwoFactorMethod,
+    phoneNumber?: string,
+  ): Promise<TwoFactorSetupResponse> {
+    const result: TwoFactorSetupResponse = { tfaMethod: method };
+    if (method === TwoFactorMethod.AUTHENTICATOR) {
+      // generate secret and qr code
+      const { secret, otpAuthUrl } = this.generateSecret(user.email);
+      const qrCode = await this.generateQrCode(otpAuthUrl);
+
+      // save secret temporarily
+      await this.usersService.update(user._id.toString(), {
+        tfaSecret: secret,
+        tfaMethod: method,
+        tfaEnabled: false,
+      });
+
+      result.qrCode = qrCode;
+    }
+
+    if (method === TwoFactorMethod.EMAIL || method === TwoFactorMethod.SMS) {
+      const otp = this.authService.generateOtp();
+      if (method === TwoFactorMethod.EMAIL) {
+        await this.emailService.sendOtpEmail(user.name, user.email, otp);
+      } else {
+        if (!user.phoneNumber && !phoneNumber) {
+          throw new BadRequestException(MESSAGES.PHONE_NUMBER_REQUIRED);
+        }
+        await this.smsService.sendOtp(phoneNumber || user.phoneNumber, otp);
+      }
+
+      await this.usersService.update(user._id.toString(), {
+        tempOtp: otp,
+        tfaMethod: method,
+        tfaEnabled: false,
+      });
+    }
+
+    return result;
+  }
+
   async enable2fa(
     userId: string,
     enable2faDto: Enable2faDto,
-  ): Promise<{ success: boolean; secret?: string; qrCode?: string }> {
+  ): Promise<{ secret?: string; qrCode?: string }> {
     const { method, phoneNumber } = enable2faDto;
 
     // If method is SMS, validate phone number
@@ -63,7 +111,7 @@ export class TwoFactorService {
     let qrCode = '';
 
     if (method === TwoFactorMethod.AUTHENTICATOR) {
-      const { secret, otpAuthUrl } = this.generateSecret(user.username);
+      const { secret, otpAuthUrl } = this.generateSecret(user.email);
       tfaSecret = secret;
       qrCode = await this.generateQrCode(otpAuthUrl);
     }
@@ -76,10 +124,19 @@ export class TwoFactorService {
     });
 
     return {
-      success: true,
       secret: tfaSecret,
       qrCode,
     };
+  }
+
+  async disable2fa(userId: string): Promise<{ success: boolean }> {
+    await this.usersService.update(userId, {
+      tfaEnabled: false,
+      tfaMethod: undefined,
+      tfaSecret: undefined,
+    });
+
+    return { success: true };
   }
 
   async verify2fa(
@@ -102,7 +159,7 @@ export class TwoFactorService {
       isValid = this.verifyToken(token, user.tfaSecret);
     } else {
       // For SMS and Email, the token should be validated against a stored OTP
-      isValid = token === user.temporaryOtp; // This is simplified
+      isValid = token === user.tempOtp;
     }
 
     if (!isValid) {
@@ -117,51 +174,30 @@ export class TwoFactorService {
     return { success: true };
   }
 
-  async disable2fa(userId: string): Promise<{ success: boolean }> {
+  async confirm2fa(userId: string, token: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
+    }
+
+    let isValid = false;
+
+    if (user.tfaMethod === TwoFactorMethod.AUTHENTICATOR) {
+      isValid = this.verifyToken(token, user.tfaSecret);
+    } else {
+      isValid = token === user.tempOtp;
+    }
+
+    if (!isValid) {
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
+    }
+
+    // Enable 2FA after successful verification
     await this.usersService.update(userId, {
-      tfaEnabled: false,
-      tfaMethod: undefined,
-      tfaSecret: undefined,
+      tfaEnabled: true,
+      tempOtp: undefined, // Clear temporary OTP
     });
 
     return { success: true };
-  }
-
-  async verify2faLogin(
-    token: string,
-    tempToken: string,
-  ): Promise<{ user: any; access_token: string }> {
-    try {
-      // Decode the temporary token to get the user ID
-      const decoded = this.jwtService.verify(tempToken);
-
-      if (!decoded.requires2FA) {
-        throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
-      }
-
-      const userId = decoded.sub;
-      const user = await this.usersService.findById(userId);
-
-      if (!user) {
-        throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
-      }
-
-      // Verify the 2FA token
-      const isValid = await this.verify2fa(userId, token);
-
-      if (!isValid.success) {
-        throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
-      }
-
-      // Generate a full access token
-      const payload = { email: user.email, sub: user._id };
-
-      return {
-        user,
-        access_token: this.jwtService.sign(payload),
-      };
-    } catch (error) {
-      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
-    }
   }
 }

@@ -50,10 +50,10 @@ export class User {
   tfaSecret: string;
 
   @Prop()
-  phoneNumber: string;
+  tempOtp: string;
 
   @Prop()
-  temporaryOtp: string;
+  phoneNumber: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Asset' }] })
   assets: Asset[];

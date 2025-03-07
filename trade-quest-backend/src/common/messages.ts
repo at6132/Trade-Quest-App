@@ -19,10 +19,12 @@ const MESSAGES = {
 
   // Two Factor
   INVALID_2FA_METHOD: 'Invalid 2FA method',
-  PHONE_NUMBER_REQUIRED: 'Phone number is required for SMS 2FA',
+  PHONE_NUMBER_REQUIRED: 'Phone number is required',
   INVALID_CREDENTIALS: 'Invalid credentials',
   TWO_FACTOR_NOT_ENABLED: '2FA is not enabled',
   INVALID_TOKEN: 'Invalid token',
+  TWO_FACTOR_SETUP_INITIATED: '2FA setup initiated',
+  TWO_FACTOR_ENABLED: '2FA enabled successfully',
 
   // Email
   OTP_EMAIL_HEADER: 'OTP for 2FA Verification',

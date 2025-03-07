@@ -163,14 +163,15 @@ export class TwoFactorService {
   //   };
   // }
 
-  async disable2fa(userId: string): Promise<{ success: boolean }> {
+  async disable2fa(userId: string): Promise<boolean> {
     await this.usersService.update(userId, {
       tfaEnabled: false,
-      tfaMethod: undefined,
-      tfaSecret: undefined,
+      tfaMethod: '',
+      tfaSecret: '',
+      tempOtp: '',
     });
 
-    return { success: true };
+    return true;
   }
 
   async confirm2fa(user: User, token: string): Promise<boolean> {

@@ -2,6 +2,7 @@ const MESSAGES = {
   // Auth
   PASSWORD_ERROR_MESSAGE:
     'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
+  INVALID_PASSWORD: 'Invalid password',
   GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
   GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
   GOOGLE_CALLBACK_URL: 'GOOGLE_CALLBACK_URL',
@@ -25,6 +26,7 @@ const MESSAGES = {
   INVALID_TOKEN: 'Invalid token',
   TWO_FACTOR_SETUP_INITIATED: '2FA setup initiated',
   TWO_FACTOR_ENABLED: '2FA enabled successfully',
+  TWO_FACTOR_DISABLED: '2FA disabled successfully',
   VERIFY_2FA: 'Verify 2FA',
   EMAIL_TFA_ENABLED:
     'Email-based two-factor authentication is enabled. Please check your inbox for the OTP.',

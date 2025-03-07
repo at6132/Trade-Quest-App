@@ -25,6 +25,7 @@ import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
 import { TwoFactorMethod } from 'src/common/enums';
+import { RequestDisable2faDto } from './dto/request-disable-2fa.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -159,6 +160,25 @@ export class AuthController {
     }
     return {
       message: MESSAGES.TWO_FACTOR_ENABLED,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/disable')
+  async disable2fa(
+    @Req() req,
+    @Body() requestDisable2faDto: RequestDisable2faDto,
+  ) {
+    const isPasswordValid = await this.usersService.verifyPassword(
+      (req.user as User)._id.toString(),
+      requestDisable2faDto.password,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(MESSAGES.INVALID_PASSWORD);
+    }
+    await this.twoFactorService.disable2fa((req.user as User)._id.toString());
+    return {
+      message: MESSAGES.TWO_FACTOR_DISABLED,
     };
   }
 }

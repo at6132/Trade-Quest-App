@@ -6,6 +6,7 @@ import { RegisterDto } from 'src/api/auth/dto/register.dto';
 import { AssetType } from 'src/common/enums';
 import { UserProfile } from './interfaces/user-profile.interface';
 import { Asset, AssetDocument } from '../assets/schemas/asset.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +32,14 @@ export class UsersService {
 
   async verifyEmail(email: string): Promise<User | null> {
     return this.userModel.findOneAndUpdate({ email }, { isVerified: true });
+  }
+
+  async verifyPassword(userId: string, password: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      return false;
+    }
+    return await bcrypt.compare(password, user.password);
   }
 
   async getProfile(userId: string): Promise<UserProfile | null> {

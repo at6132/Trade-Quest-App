@@ -26,6 +26,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
 import { TwoFactorMethod } from 'src/common/enums';
 import { RequestDisable2faDto } from './dto/request-disable-2fa.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -93,6 +94,31 @@ export class AuthController {
       message,
       data: result,
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('verify-otp')
+  async verifyOtp(@Req() req: Request, @Body() verifyOtpDto: Enable2faDto) {
+    const user = req.user as User;
+    let payload: JwtPayload = { email: user?.email, sub: user?._id };
+    const result = await this.twoFactorService.verifyOtp(
+      user,
+      verifyOtpDto.otp,
+    );
+    return result
+      ? {
+          message: MESSAGES.OTP_VERIFIED_SUCCESSFULLY,
+          data: {
+            tfaEnabled: user.tfaEnabled,
+            tfaMethod: user.tfaMethod,
+            accessToken: this.jwtService.sign(payload, {
+              expiresIn: CONSTANTS.OTP_EXPIRY,
+            }),
+          },
+        }
+      : {
+          message: MESSAGES.INVALID_OTP,
+        };
   }
 
   @Get('google')

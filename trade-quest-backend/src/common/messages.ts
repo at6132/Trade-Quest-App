@@ -3,6 +3,8 @@ const MESSAGES = {
   PASSWORD_ERROR_MESSAGE:
     'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
   INVALID_PASSWORD: 'Invalid password',
+  INVALID_OTP: 'Invalid OTP',
+  OTP_VERIFIED_SUCCESSFULLY: 'OTP verified successfully',
   GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
   GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
   GOOGLE_CALLBACK_URL: 'GOOGLE_CALLBACK_URL',

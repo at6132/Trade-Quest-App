@@ -10,7 +10,6 @@ import CONSTANTS from 'src/common/constants';
 import { TwoFactorMethod } from 'src/common/enums';
 import { EmailService } from '../email/email.service';
 import { SmsService } from '../sms/sms.service';
-import MESSAGES from 'src/common/messages';
 
 @Injectable()
 export class AuthService {
@@ -69,7 +68,7 @@ export class AuthService {
       return {
         tfaEnabled: user.tfaEnabled,
         tfaMethod: user.tfaMethod,
-        tempToken: this.jwtService.sign(payload, {
+        accessToken: this.jwtService.sign(payload, {
           expiresIn: CONSTANTS.OTP_EXPIRY,
         }),
       };

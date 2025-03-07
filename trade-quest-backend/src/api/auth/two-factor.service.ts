@@ -174,25 +174,28 @@ export class TwoFactorService {
     return true;
   }
 
-  async confirm2fa(user: User, token: string): Promise<boolean> {
+  async verifyOtp(user: User, otp: string): Promise<boolean> {
     let isValid = false;
 
     if (user.tfaMethod === TwoFactorMethod.AUTHENTICATOR) {
-      isValid = this.verifyToken(token, user.tfaSecret);
+      isValid = this.verifyToken(otp, user.tfaSecret);
     } else {
-      isValid = token === user.tempOtp;
+      isValid = otp === user.tempOtp;
     }
 
-    if (!isValid) {
-      return false;
-    }
+    return isValid;
+  }
 
-    // Enable 2FA after successful verification
-    await this.usersService.update(user._id.toString(), {
-      tfaEnabled: true,
-      tempOtp: '', // Clear temporary OTP
-    });
+  async confirm2fa(user: User, token: string): Promise<boolean> {
+    const isValid = await this.verifyOtp(user, token);
 
-    return true;
+    isValid
+      ? await this.usersService.update(user._id.toString(), {
+          tfaEnabled: true,
+          tempOtp: '', // Clear temporary OTP
+        })
+      : false;
+
+    return isValid;
   }
 }

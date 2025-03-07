@@ -25,6 +25,13 @@ const MESSAGES = {
   INVALID_TOKEN: 'Invalid token',
   TWO_FACTOR_SETUP_INITIATED: '2FA setup initiated',
   TWO_FACTOR_ENABLED: '2FA enabled successfully',
+  VERIFY_2FA: 'Verify 2FA',
+  EMAIL_TFA_ENABLED:
+    'Email-based two-factor authentication is enabled. Please check your inbox for the OTP.',
+  SMS_TFA_ENABLED:
+    'SMS-based two-factor authentication is enabled. Please check your phone for the OTP.',
+  AUTHENTICATOR_TFA_ENABLED:
+    'Authenticator-based two-factor authentication is enabled. Please open your Authenticator app for the OTP.',
 
   // Email
   OTP_EMAIL_HEADER: 'OTP for 2FA Verification',

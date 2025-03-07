@@ -10,6 +10,7 @@ import CONSTANTS from 'src/common/constants';
 import { TwoFactorMethod } from 'src/common/enums';
 import { EmailService } from '../email/email.service';
 import { SmsService } from '../sms/sms.service';
+import MESSAGES from 'src/common/messages';
 
 @Injectable()
 export class AuthService {

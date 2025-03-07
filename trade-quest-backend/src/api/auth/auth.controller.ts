@@ -24,6 +24,7 @@ import CONSTANTS from 'src/common/constants';
 import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
+import { TwoFactorMethod } from 'src/common/enums';
 
 @Controller('auth')
 export class AuthController {
@@ -75,8 +76,20 @@ export class AuthController {
   @Post('login')
   async login(@Req() req: Request) {
     const result = await this.authService.login(req.user as User);
+    let message = '';
+    if (result.tfaEnabled) {
+      message =
+        result.tfaMethod === TwoFactorMethod.EMAIL
+          ? MESSAGES.EMAIL_TFA_ENABLED
+          : result.tfaMethod === TwoFactorMethod.SMS
+            ? MESSAGES.SMS_TFA_ENABLED
+            : MESSAGES.AUTHENTICATOR_TFA_ENABLED;
+    } else {
+      message = MESSAGES.USER_LOGGED_IN_SUCCESSFULLY;
+    }
+
     return {
-      message: MESSAGES.USER_LOGGED_IN_SUCCESSFULLY,
+      message,
       data: result,
     };
   }

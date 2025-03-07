@@ -16,7 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { UserProfile } from 'src/api/users/interfaces/user-profile.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { Verify2faDto } from './dto/verify-2fa.dto';
+import { Enable2faDto } from './dto/enable-2fa.dto';
 import { TwoFactorService } from './two-factor.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import MESSAGES from '../../common/messages';
@@ -135,15 +135,17 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('2fa/confirm')
-  async confirm2fa(@Req() req, @Body() verify2faDto: Verify2faDto) {
-    const result = await this.twoFactorService.confirm2fa(
-      req.user._id,
-      verify2faDto.token,
+  @Post('2fa/enable')
+  async enable2fa(@Req() req, @Body() enable2faDto: Enable2faDto) {
+    const confirmed = await this.twoFactorService.confirm2fa(
+      req.user as User,
+      enable2faDto.otp,
     );
+    if (!confirmed) {
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
+    }
     return {
       message: MESSAGES.TWO_FACTOR_ENABLED,
-      data: result,
     };
   }
 }

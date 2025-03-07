@@ -9,7 +9,6 @@ import { authenticator } from 'otplib';
 import * as qrcode from 'qrcode';
 import { UsersService } from '../users/users.service';
 import MESSAGES from '../../common/messages';
-import { Enable2faDto } from './dto/enable-2fa.dto';
 import { TwoFactorMethod } from 'src/common/enums';
 import { EmailService } from '../email/email.service';
 import { SmsService } from '../sms/sms.service';
@@ -90,55 +89,6 @@ export class TwoFactorService {
     return result;
   }
 
-  async enable2fa(
-    userId: string,
-    enable2faDto: Enable2faDto,
-  ): Promise<{ secret?: string; qrCode?: string }> {
-    const { method, phoneNumber } = enable2faDto;
-
-    // If method is SMS, validate phone number
-    if (method === TwoFactorMethod.SMS && !phoneNumber) {
-      throw new BadRequestException(MESSAGES.PHONE_NUMBER_REQUIRED);
-    }
-
-    const user = await this.usersService.findById(userId);
-    if (!user) {
-      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
-    }
-
-    // Generate secret for authenticator method
-    let tfaSecret = '';
-    let qrCode = '';
-
-    if (method === TwoFactorMethod.AUTHENTICATOR) {
-      const { secret, otpAuthUrl } = this.generateSecret(user.email);
-      tfaSecret = secret;
-      qrCode = await this.generateQrCode(otpAuthUrl);
-    }
-
-    // Update user with 2FA settings
-    await this.usersService.update(userId, {
-      tfaMethod: method,
-      tfaSecret,
-      phoneNumber: method === TwoFactorMethod.SMS ? phoneNumber : undefined,
-    });
-
-    return {
-      secret: tfaSecret,
-      qrCode,
-    };
-  }
-
-  async disable2fa(userId: string): Promise<{ success: boolean }> {
-    await this.usersService.update(userId, {
-      tfaEnabled: false,
-      tfaMethod: undefined,
-      tfaSecret: undefined,
-    });
-
-    return { success: true };
-  }
-
   async verify2fa(
     userId: string,
     token: string,
@@ -174,12 +124,56 @@ export class TwoFactorService {
     return { success: true };
   }
 
-  async confirm2fa(userId: string, token: string) {
-    const user = await this.usersService.findById(userId);
-    if (!user) {
-      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
-    }
+  // async enable2fa(
+  //   userId: string,
+  //   enable2faDto: Enable2faDto,
+  // ): Promise<{ secret?: string; qrCode?: string }> {
+  //   const { method, phoneNumber } = enable2faDto;
 
+  //   // If method is SMS, validate phone number
+  //   if (method === TwoFactorMethod.SMS && !phoneNumber) {
+  //     throw new BadRequestException(MESSAGES.PHONE_NUMBER_REQUIRED);
+  //   }
+
+  //   const user = await this.usersService.findById(userId);
+  //   if (!user) {
+  //     throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
+  //   }
+
+  //   // Generate secret for authenticator method
+  //   let tfaSecret = '';
+  //   let qrCode = '';
+
+  //   if (method === TwoFactorMethod.AUTHENTICATOR) {
+  //     const { secret, otpAuthUrl } = this.generateSecret(user.email);
+  //     tfaSecret = secret;
+  //     qrCode = await this.generateQrCode(otpAuthUrl);
+  //   }
+
+  //   // Update user with 2FA settings
+  //   await this.usersService.update(userId, {
+  //     tfaMethod: method,
+  //     tfaSecret,
+  //     phoneNumber: method === TwoFactorMethod.SMS ? phoneNumber : undefined,
+  //   });
+
+  //   return {
+  //     secret: tfaSecret,
+  //     qrCode,
+  //   };
+  // }
+
+  async disable2fa(userId: string): Promise<{ success: boolean }> {
+    await this.usersService.update(userId, {
+      tfaEnabled: false,
+      tfaMethod: undefined,
+      tfaSecret: undefined,
+    });
+
+    return { success: true };
+  }
+
+  async confirm2fa(user: User, token: string): Promise<boolean> {
     let isValid = false;
 
     if (user.tfaMethod === TwoFactorMethod.AUTHENTICATOR) {
@@ -189,15 +183,15 @@ export class TwoFactorService {
     }
 
     if (!isValid) {
-      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
+      return false;
     }
 
     // Enable 2FA after successful verification
-    await this.usersService.update(userId, {
+    await this.usersService.update(user._id.toString(), {
       tfaEnabled: true,
-      tempOtp: undefined, // Clear temporary OTP
+      tempOtp: '', // Clear temporary OTP
     });
 
-    return { success: true };
+    return true;
   }
 }

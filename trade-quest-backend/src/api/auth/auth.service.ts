@@ -74,7 +74,7 @@ export class AuthService {
       };
     }
 
-    const { password, ...responseUser } = user;
+    const { tfaSecret, tempOtp, password, ...responseUser } = user;
 
     return {
       user: responseUser,

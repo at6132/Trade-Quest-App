@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from 'src/api/auth/dto/register.dto';
-import { AssetType } from 'src/config/enums';
+import { AssetType } from 'src/common/enums';
 import { UserProfile } from './interfaces/user-profile.interface';
 import { Asset, AssetDocument } from '../assets/schemas/asset.schema';
-import { ConflictException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -18,25 +18,8 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: RegisterDto): Promise<User> {
-    const existingUser = await this.userModel
-      .findOne({
-        username: createUserDto.username,
-      })
-      .exec();
-
-    if (existingUser) {
-      throw new ConflictException('Username already exists');
-    }
-
-    try {
-      const user = new this.userModel(createUserDto);
-      return await user.save();
-    } catch (error) {
-      if (error?.code === 11000) {
-        throw new ConflictException('Username already exists');
-      }
-      throw error;
-    }
+    const user = new this.userModel(createUserDto);
+    return await user.save();
   }
 
   async findById(id: string): Promise<User | null> {
@@ -45,6 +28,18 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).lean();
+  }
+
+  async verifyEmail(email: string): Promise<User | null> {
+    return this.userModel.findOneAndUpdate({ email }, { isVerified: true });
+  }
+
+  async verifyPassword(userId: string, password: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      return false;
+    }
+    return await bcrypt.compare(password, user.password);
   }
 
   async getProfile(userId: string): Promise<UserProfile | null> {

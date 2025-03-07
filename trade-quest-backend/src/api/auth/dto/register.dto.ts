@@ -8,8 +8,9 @@ import {
   IsBoolean,
   IsEnum,
 } from 'class-validator';
-import { PASSWORD_ERROR_MESSAGE, PASSWORD_REGEX } from 'src/config/constants';
-import { AuthProvider } from 'src/config/enums';
+import { AuthProvider } from '../../../common/enums';
+import CONSTANTS from '../../../common/constants';
+import MESSAGES from 'src/common/messages';
 
 export class RegisterDto {
   @IsString()
@@ -29,9 +30,13 @@ export class RegisterDto {
   username: string;
 
   @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+
+  @IsString()
   @MinLength(8)
-  @Matches(PASSWORD_REGEX, {
-    message: PASSWORD_ERROR_MESSAGE,
+  @Matches(CONSTANTS.PASSWORD_REGEX, {
+    message: MESSAGES.PASSWORD_ERROR_MESSAGE,
   })
   @IsNotEmpty()
   password: string;

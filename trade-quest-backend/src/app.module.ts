@@ -14,12 +14,15 @@ import { throttlerConfig } from './config/throttle.config';
 import { RequestLoggingMiddleware } from './common/middleware/request-logging.middleware';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './config/winston.config';
+import emailConfig from './config/email.config';
+import CONSTANTS from './common/constants';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [emailConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -33,7 +36,7 @@ import { winstonConfig } from './config/winston.config';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' },
+        signOptions: { expiresIn: CONSTANTS.JWT_EXPIRES_IN },
       }),
       inject: [ConfigService],
     }),

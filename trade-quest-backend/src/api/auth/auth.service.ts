@@ -63,15 +63,15 @@ export class AuthService {
         user.tfaMethod === TwoFactorMethod.EMAIL
           ? await this.emailService.sendOtpEmail(user.name, user.email, otp)
           : await this.smsService.sendOtp(user.phoneNumber, otp);
-
-        return {
-          tfaEnabled: user.tfaEnabled,
-          tfaMethod: user.tfaMethod,
-          tempToken: this.jwtService.sign(payload, {
-            expiresIn: CONSTANTS.OTP_EXPIRY,
-          }),
-        };
       }
+
+      return {
+        tfaEnabled: user.tfaEnabled,
+        tfaMethod: user.tfaMethod,
+        tempToken: this.jwtService.sign(payload, {
+          expiresIn: CONSTANTS.OTP_EXPIRY,
+        }),
+      };
     }
 
     const { password, ...responseUser } = user;

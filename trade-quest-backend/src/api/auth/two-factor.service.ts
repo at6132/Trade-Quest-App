@@ -124,45 +124,6 @@ export class TwoFactorService {
     return { success: true };
   }
 
-  // async enable2fa(
-  //   userId: string,
-  //   enable2faDto: Enable2faDto,
-  // ): Promise<{ secret?: string; qrCode?: string }> {
-  //   const { method, phoneNumber } = enable2faDto;
-
-  //   // If method is SMS, validate phone number
-  //   if (method === TwoFactorMethod.SMS && !phoneNumber) {
-  //     throw new BadRequestException(MESSAGES.PHONE_NUMBER_REQUIRED);
-  //   }
-
-  //   const user = await this.usersService.findById(userId);
-  //   if (!user) {
-  //     throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
-  //   }
-
-  //   // Generate secret for authenticator method
-  //   let tfaSecret = '';
-  //   let qrCode = '';
-
-  //   if (method === TwoFactorMethod.AUTHENTICATOR) {
-  //     const { secret, otpAuthUrl } = this.generateSecret(user.email);
-  //     tfaSecret = secret;
-  //     qrCode = await this.generateQrCode(otpAuthUrl);
-  //   }
-
-  //   // Update user with 2FA settings
-  //   await this.usersService.update(userId, {
-  //     tfaMethod: method,
-  //     tfaSecret,
-  //     phoneNumber: method === TwoFactorMethod.SMS ? phoneNumber : undefined,
-  //   });
-
-  //   return {
-  //     secret: tfaSecret,
-  //     qrCode,
-  //   };
-  // }
-
   async disable2fa(userId: string): Promise<boolean> {
     await this.usersService.update(userId, {
       tfaEnabled: false,

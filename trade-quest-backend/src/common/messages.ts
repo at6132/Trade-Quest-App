@@ -47,8 +47,8 @@ const MESSAGES = {
   // SMS
   OTP_SMS_MESSAGE:
     'Your verification code is: otp. This code will expire in 5 minutes.',
-
   INVALID_CAPTCHA: 'Invalid CAPTCHA verification',
+  INVALID_SESSION: 'Invalid or expired session',
 };
 
 export default MESSAGES;

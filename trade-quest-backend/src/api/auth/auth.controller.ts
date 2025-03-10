@@ -7,6 +7,7 @@ import {
   Get,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -24,10 +25,11 @@ import CONSTANTS from 'src/common/constants';
 import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
-import { TwoFactorMethod } from 'src/common/enums';
 import { RequestDisable2faDto } from './dto/request-disable-2fa.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { CaptchaGuard } from './guards/captcha.guard';
+import { SessionInterceptor } from '../sessions/interceptors/session.interceptor';
+import { SessionGuard } from '../sessions/guards/session.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -74,47 +76,44 @@ export class AuthController {
     };
   }
 
-  @UseGuards(LocalAuthGuard, CaptchaGuard)
+  // @UseGuards(LocalAuthGuard, CaptchaGuard)
+  @UseGuards(LocalAuthGuard)
   // @UseInterceptors(LoginHistoryInterceptor)
+  @UseInterceptors(SessionInterceptor)
   @Post('login')
   async login(@Req() req: Request) {
     const result = await this.authService.login(req.user as User);
-    let message = '';
-    if (result.tfaEnabled) {
-      message =
-        result.tfaMethod === TwoFactorMethod.EMAIL
-          ? MESSAGES.EMAIL_TFA_ENABLED
-          : result.tfaMethod === TwoFactorMethod.SMS
-            ? MESSAGES.SMS_TFA_ENABLED
-            : MESSAGES.AUTHENTICATOR_TFA_ENABLED;
-    } else {
-      message = MESSAGES.USER_LOGGED_IN_SUCCESSFULLY;
+    // Set flag for non-2FA logins
+    if (!result.tfaEnabled) {
+      req['shouldCreateSession'] = true;
     }
-
     return {
-      message,
+      message: result.tfaEnabled
+        ? MESSAGES.VERIFY_2FA
+        : MESSAGES.USER_LOGGED_IN_SUCCESSFULLY,
       data: result,
     };
   }
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(SessionInterceptor)
   @Post('verify-otp')
   async verifyOtp(@Req() req: Request, @Body() verifyOtpDto: Enable2faDto) {
     const user = req.user as User;
-    let payload: JwtPayload = { email: user?.email, sub: user?._id };
     const result = await this.twoFactorService.verifyOtp(
       user,
       verifyOtpDto.otp,
     );
+    if (result) {
+      // Set flag after successful 2FA
+      req['shouldCreateSession'] = true;
+    }
+    let payload: JwtPayload = { email: user?.email, sub: user?._id };
     return result
       ? {
           message: MESSAGES.OTP_VERIFIED_SUCCESSFULLY,
           data: {
-            tfaEnabled: user.tfaEnabled,
-            tfaMethod: user.tfaMethod,
-            accessToken: this.jwtService.sign(payload, {
-              expiresIn: CONSTANTS.OTP_EXPIRY,
-            }),
+            accessToken: this.jwtService.sign(payload),
           },
         }
       : {

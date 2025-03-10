@@ -11,6 +11,8 @@ import { TwoFactorService } from './two-factor.service';
 import { LoginHistoryModule } from '../login-history/login-history.module';
 import { EmailModule } from '../email/email.module';
 import { SmsModule } from '../sms/sms.module';
+import { HttpModule } from '@nestjs/axios';
+import { CaptchaService } from './captcha/captcha.service';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { SmsModule } from '../sms/sms.module';
     LoginHistoryModule,
     EmailModule,
     SmsModule,
+    HttpModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -28,6 +31,7 @@ import { SmsModule } from '../sms/sms.module';
     LocalStrategy,
     GoogleStrategy,
     TwoFactorService,
+    CaptchaService,
   ],
   exports: [AuthService, TwoFactorService],
 })

@@ -3,20 +3,48 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Session, SessionDocument } from './schemas/session.schema';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
+
 @Injectable()
 export class SessionsService {
+  private session_secret: string;
   constructor(
     @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
     private jwtService: JwtService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.session_secret = this.configService.get('SESSION_SECRET') || 'secret';
+  }
+
+  // wnat to encrypt using crypto then want to decrpt that tokn for use
+
+  encryptToken(token: string): string {
+    const cipher = crypto.createCipheriv(
+      'aes-256-cbc',
+      this.session_secret,
+      'iv',
+    );
+    const encrypted = cipher.update(token, 'utf8', 'hex');
+    return encrypted + cipher.final('hex');
+  }
+
+  decryptToken(token: string): string {
+    const decipher = crypto.createDecipheriv(
+      'aes-256-cbc',
+      this.session_secret,
+      'iv',
+    );
+    const decrypted = decipher.update(token, 'hex', 'utf8');
+    return decrypted + decipher.final('utf8');
+  }
 
   async createSession(
     userId: string,
     token: string,
     deviceInfo: Session['deviceInfo'],
   ): Promise<Session> {
-    const encryptedToken = await bcrypt.hash(token, 10);
+    const encryptedToken = this.encryptToken(token);
     const decoded = this.jwtService.decode(token);
     const expiresAt = new Date((decoded as any).exp * 1000);
 
@@ -63,8 +91,9 @@ export class SessionsService {
   }
 
   async findByToken(token: string): Promise<Session | null> {
+    const decryptedToken = this.decryptToken(token);
     return this.sessionModel.findOne({
-      token,
+      token: decryptedToken,
       isActive: true,
       expiresAt: { $gt: new Date() },
     });

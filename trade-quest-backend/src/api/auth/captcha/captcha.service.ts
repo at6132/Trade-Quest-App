@@ -15,7 +15,7 @@ export class CaptchaService {
     const secretKey = this.configService.get('RECAPTCHA_SECRET_KEY');
     const { data } = await firstValueFrom(
       this.httpService.post(
-        `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`,
+        `${process.env.RECAPTCHA_URL}?secret=${secretKey}&response=${token}`,
       ),
     );
 

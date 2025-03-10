@@ -27,6 +27,7 @@ import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
 import { TwoFactorMethod } from 'src/common/enums';
 import { RequestDisable2faDto } from './dto/request-disable-2fa.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { CaptchaGuard } from './guards/captcha.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -73,7 +74,7 @@ export class AuthController {
     };
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard, CaptchaGuard)
   // @UseInterceptors(LoginHistoryInterceptor)
   @Post('login')
   async login(@Req() req: Request) {

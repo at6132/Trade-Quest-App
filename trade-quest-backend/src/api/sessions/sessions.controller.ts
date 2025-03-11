@@ -5,68 +5,54 @@ import {
   Param,
   UseGuards,
   Req,
-  UnauthorizedException,
   Query,
 } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Request } from 'express';
-import MESSAGES from 'src/common/messages';
 import { User } from '../users/schemas/user.schema';
-import { JwtService } from '@nestjs/jwt';
+import MESSAGES from 'src/common/messages';
 
 @Controller('sessions')
 @UseGuards(JwtAuthGuard)
 export class SessionsController {
-  constructor(
-    private sessionsService: SessionsService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private sessionsService: SessionsService) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
   async getUserSessions(@Req() req: Request) {
     const user = req.user as User;
-    const userId = user._id.toString();
-    return this.sessionsService.getUserSessions(userId);
+    const userId = user._id;
+    const sessions = await this.sessionsService.getUserSessions(userId);
+    return {
+      message: MESSAGES.SESSIONS_FETCHED_SUCCESSFULLY,
+      data: sessions,
+    };
   }
 
   @Delete(':sessionId')
+  @UseGuards(JwtAuthGuard)
   async terminateSession(
     @Req() req: Request,
     @Param('sessionId') sessionId: string,
   ) {
-    if (!req.user) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_AUTHENTICATED);
-    }
-    await this.sessionsService.terminateSession(req.user['_id'], sessionId);
-    return { message: 'Session terminated successfully' };
+    const user = req.user as User;
+    await this.sessionsService.terminateSession(user._id, sessionId);
+    return { message: MESSAGES.SESSION_TERMINATED_SUCCESSFULLY };
   }
 
   @Delete()
   @UseGuards(JwtAuthGuard)
   async terminateAllSessions(
     @Req() req: Request,
-    @Query('keepCurrent') keepCurrent?: boolean,
+    @Query('sessionId') sessionId?: string,
   ) {
     const user = req.user as User;
-    let currentSessionId: string | undefined;
 
-    if (keepCurrent) {
-      const token = req.headers.authorization!.split(' ')[1];
-      const decoded = this.jwtService.decode(token);
-      currentSessionId = decoded['sessionId'];
-    }
-
-    await this.sessionsService.terminateAllSessions(
-      user._id.toString(),
-      currentSessionId,
-    );
+    await this.sessionsService.terminateAllSessions(user._id, sessionId);
 
     return {
-      message: keepCurrent
-        ? 'All other sessions terminated successfully'
-        : 'All sessions terminated successfully',
+      message: MESSAGES.SESSION_TERMINATED_SUCCESSFULLY,
     };
   }
 }

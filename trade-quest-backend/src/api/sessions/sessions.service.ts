@@ -2,55 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Session, SessionDocument } from './schemas/session.schema';
-import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SessionsService {
-  private session_secret: string;
   constructor(
     @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
-    private jwtService: JwtService,
-    private configService: ConfigService,
-  ) {
-    this.session_secret = this.configService.get('SESSION_SECRET') || 'secret';
-  }
-
-  // wnat to encrypt using crypto then want to decrpt that tokn for use
-
-  encryptToken(token: string): string {
-    const cipher = crypto.createCipheriv(
-      'aes-256-cbc',
-      this.session_secret,
-      'iv',
-    );
-    const encrypted = cipher.update(token, 'utf8', 'hex');
-    return encrypted + cipher.final('hex');
-  }
-
-  decryptToken(token: string): string {
-    const decipher = crypto.createDecipheriv(
-      'aes-256-cbc',
-      this.session_secret,
-      'iv',
-    );
-    const decrypted = decipher.update(token, 'hex', 'utf8');
-    return decrypted + decipher.final('utf8');
-  }
+  ) {}
 
   async createSession(
     userId: string,
-    token: string,
+    expiresAt: Date,
     deviceInfo: Session['deviceInfo'],
   ): Promise<Session> {
-    const encryptedToken = this.encryptToken(token);
-    const decoded = this.jwtService.decode(token);
-    const expiresAt = new Date((decoded as any).exp * 1000);
-
     return this.sessionModel.create({
       userId,
-      token: encryptedToken,
       deviceInfo,
       lastActiveAt: new Date(),
       expiresAt,
@@ -59,7 +24,7 @@ export class SessionsService {
 
   async getUserSessions(userId: string): Promise<Session[]> {
     return this.sessionModel
-      .find({ userId, isActive: true })
+      .find({ userId, isActive: true, expiresAt: { $gt: new Date() } })
       .sort({ lastActiveAt: -1 })
       .exec();
   }
@@ -76,11 +41,20 @@ export class SessionsService {
     userId: string,
     exceptSessionId?: string,
   ): Promise<void> {
-    const query = { userId, isActive: true };
+    const query: any = {
+      userId,
+      isActive: true,
+      expiresAt: { $gt: new Date() },
+    };
+
     if (exceptSessionId) {
-      Object.assign(query, { _id: { $ne: exceptSessionId } });
+      query._id = { $ne: exceptSessionId };
     }
-    await this.sessionModel.updateMany(query, { isActive: false });
+
+    await this.sessionModel.updateMany(query, {
+      isActive: false,
+      lastActiveAt: new Date(),
+    });
   }
 
   async updateLastActive(sessionId: string): Promise<void> {
@@ -90,12 +64,13 @@ export class SessionsService {
     );
   }
 
-  async findByToken(token: string): Promise<Session | null> {
-    const decryptedToken = this.decryptToken(token);
-    return this.sessionModel.findOne({
-      token: decryptedToken,
+  async findBySessionId(sessionId: string): Promise<Session | null> {
+    const session = await this.sessionModel.findOne({
+      _id: sessionId,
       isActive: true,
       expiresAt: { $gt: new Date() },
     });
+
+    return session;
   }
 }

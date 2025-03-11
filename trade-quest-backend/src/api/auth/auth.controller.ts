@@ -29,7 +29,6 @@ import { RequestDisable2faDto } from './dto/request-disable-2fa.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { CaptchaGuard } from './guards/captcha.guard';
 import { SessionInterceptor } from '../sessions/interceptors/session.interceptor';
-import { SessionGuard } from '../sessions/guards/session.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -148,7 +147,7 @@ export class AuthController {
       throw new UnauthorizedException(MESSAGES.USER_NOT_AUTHENTICATED);
     }
 
-    const userId = req.user['id'];
+    const userId = req.user['_id'].toString();
     const profile = await this.usersService.getProfile(userId);
     if (!profile) {
       throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);

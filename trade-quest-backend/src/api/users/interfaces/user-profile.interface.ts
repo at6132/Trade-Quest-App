@@ -1,5 +1,4 @@
 import { User } from '../schemas/user.schema';
 
-export interface UserProfile extends Omit<User, 'password' | 'avatar'> {
-  avatar: string | null;
-}
+export interface UserProfile
+  extends Omit<User, 'password' | 'assets' | 'tfaSecret' | 'tempOtp' | '__v'> {}

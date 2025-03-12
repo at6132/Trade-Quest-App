@@ -19,6 +19,7 @@ const MESSAGES = {
   NO_USER_FROM_GOOGLE: 'No user from google',
   USER_REGISTERED_SUCCESSFULLY: 'User registered successfully',
   USER_LOGGED_IN_SUCCESSFULLY: 'User logged in successfully',
+  PROFILE_FETCHED_SUCCESSFULLY: 'Profile fetched successfully',
 
   // Two Factor
   INVALID_2FA_METHOD: 'Invalid 2FA method',
@@ -53,6 +54,13 @@ const MESSAGES = {
   // Sessions
   SESSION_TERMINATED_SUCCESSFULLY: 'Session terminated successfully',
   SESSIONS_FETCHED_SUCCESSFULLY: 'Sessions fetched successfully',
+
+  // User Profile
+  EMAIL_ALREADY_EXISTS: 'Email is already in use',
+  USERNAME_ALREADY_EXISTS: 'Username is already taken',
+  PROFILE_UPDATED_SUCCESSFULLY: 'Profile updated successfully',
+  PREFERENCES_UPDATED_SUCCESSFULLY: 'Preferences updated successfully',
+  PASSWORD_CHANGED_SUCCESSFULLY: 'Password changed successfully',
 };
 
 export default MESSAGES;

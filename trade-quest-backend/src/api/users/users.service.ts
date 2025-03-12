@@ -43,11 +43,7 @@ export class UsersService {
   }
 
   async getProfile(userId: string): Promise<UserProfile | null> {
-    const user = await this.userModel
-      .findById(userId)
-      .select('-password -assets -tfaSecret -__v')
-      .lean()
-      .exec();
+    const user = await this.userModel.findById(userId).lean().exec();
 
     if (!user) {
       return null;

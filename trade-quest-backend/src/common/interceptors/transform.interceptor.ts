@@ -27,33 +27,20 @@ export class TransformInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((response) => {
-        // If response only contains a message, don't include it as data
-        if (
-          response &&
-          Object.keys(response).length === 1 &&
-          response.message
-        ) {
+      map((data) => {
+        if (data?.message) {
           return {
             success: true,
-            message: response.message,
+            message: data.message,
+            data: data.data, // Remove the spread operator to maintain original structure
           };
         }
 
-        // Handle responses with data
-        const data = response?.data ?? response;
-        const message = response?.message ?? 'Operation successful';
-
-        const transformedResponse: Response<T> = {
+        return {
           success: true,
-          message,
+          message: 'Operation successful',
+          data,
         };
-
-        if (data !== null && data !== undefined && data !== message) {
-          transformedResponse.data = data;
-        }
-
-        return transformedResponse;
       }),
     );
   }

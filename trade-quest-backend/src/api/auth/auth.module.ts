@@ -13,6 +13,7 @@ import { EmailModule } from '../email/email.module';
 import { SmsModule } from '../sms/sms.module';
 import { HttpModule } from '@nestjs/axios';
 import { CaptchaService } from './captcha/captcha.service';
+import { SessionsModule } from '../sessions/sessions.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CaptchaService } from './captcha/captcha.service';
     PassportModule,
     AssetsModule,
     LoginHistoryModule,
+    SessionsModule,
     EmailModule,
     SmsModule,
     HttpModule,

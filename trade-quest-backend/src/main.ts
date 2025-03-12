@@ -6,10 +6,13 @@ import { winstonConfig } from './config/winston.config';
 import * as useragent from 'express-useragent';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as express from 'express';
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: WinstonModule.createLogger(winstonConfig),
     });
 
@@ -38,6 +41,16 @@ async function bootstrap() {
 
     app.useGlobalInterceptors(new TransformInterceptor());
     app.useGlobalFilters(new HttpExceptionFilter());
+
+    // Create uploads directory if it doesn't exist
+    const fs = require('fs');
+    const uploadsDir = join(__dirname, '..', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Serve static files from the uploads directory
+    app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
     const port = process.env.PORT || 3000;
     await app.listen(port);

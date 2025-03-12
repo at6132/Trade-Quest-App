@@ -49,21 +49,8 @@ export class UsersService {
       return null;
     }
 
-    const avatar = await this.assetModel
-      .findOne({
-        uploadedBy: new Types.ObjectId(userId),
-        type: AssetType.AVATAR,
-        isActive: true,
-      })
-      .select('url')
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
-
-    return {
-      ...user,
-      avatar: avatar?.url || null,
-    } as UserProfile;
+    const { password, tfaSecret, tempOtp, ...userProfile } = user;
+    return userProfile;
   }
 
   async update(

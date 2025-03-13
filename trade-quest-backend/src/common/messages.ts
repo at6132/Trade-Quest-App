@@ -1,5 +1,7 @@
 const MESSAGES = {
   // Auth
+  PASSWORD_MIN_LENGTH: 'Password must be at least 8 characters long',
+  PASSWORD_MAX_LENGTH: 'Password must not exceed 32 characters',
   PASSWORD_ERROR_MESSAGE:
     'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
   INVALID_PASSWORD: 'Invalid password',

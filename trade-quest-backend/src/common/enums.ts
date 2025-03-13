@@ -37,6 +37,21 @@ export enum MarketType {
   FUTURES = 'futures',
 }
 
+export enum ChartType {
+  CANDLESTICK = 'candlestick',
+  LINE = 'line',
+  BAR = 'bar',
+  HEIKINASHI = 'heikinashi',
+  AREA = 'area',
+}
+
+export enum OrderType {
+  MARKET = 'market',
+  LIMIT = 'limit',
+  STOP = 'stop',
+  STOP_LIMIT = 'stopLimit',
+}
+
 export enum TimeFrame {
   M1 = '1m',
   M5 = '5m',
@@ -46,4 +61,10 @@ export enum TimeFrame {
   H4 = '4h',
   D1 = '1d',
   W1 = '1w',
+}
+
+export enum Theme {
+  LIGHT = 'light',
+  DARK = 'dark',
+  SYSTEM = 'system',
 }

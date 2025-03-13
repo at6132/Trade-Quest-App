@@ -1,5 +1,7 @@
 const MESSAGES = {
   // Auth
+  PASSWORD_MIN_LENGTH: 'Password must be at least 8 characters long',
+  PASSWORD_MAX_LENGTH: 'Password must not exceed 32 characters',
   PASSWORD_ERROR_MESSAGE:
     'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
   INVALID_PASSWORD: 'Invalid password',
@@ -19,6 +21,7 @@ const MESSAGES = {
   NO_USER_FROM_GOOGLE: 'No user from google',
   USER_REGISTERED_SUCCESSFULLY: 'User registered successfully',
   USER_LOGGED_IN_SUCCESSFULLY: 'User logged in successfully',
+  PROFILE_FETCHED_SUCCESSFULLY: 'Profile fetched successfully',
 
   // Two Factor
   INVALID_2FA_METHOD: 'Invalid 2FA method',
@@ -53,6 +56,29 @@ const MESSAGES = {
   // Sessions
   SESSION_TERMINATED_SUCCESSFULLY: 'Session terminated successfully',
   SESSIONS_FETCHED_SUCCESSFULLY: 'Sessions fetched successfully',
+
+  // User Profile
+  EMAIL_ALREADY_EXISTS: 'Email already in use',
+  USERNAME_ALREADY_EXISTS: 'Username is already taken',
+  PROFILE_UPDATED_SUCCESSFULLY: 'Profile updated successfully',
+  PREFERENCES_UPDATED_SUCCESSFULLY: 'Trading preferences updated successfully',
+  PASSWORD_CHANGED_SUCCESSFULLY: 'Password changed successfully',
+  INVALID_FILE_TYPE: 'Only image files (JPG, JPEG, PNG) are allowed',
+
+  // Social
+  SOCIAL_CONNECTIONS_FETCHED_SUCCESSFULLY:
+    'Social connections fetched successfully',
+  USER_FOLLOWED_SUCCESSFULLY: 'User followed successfully',
+  USER_UNFOLLOWED_SUCCESSFULLY: 'User unfollowed successfully',
+  CANNOT_FOLLOW_YOURSELF: 'You cannot follow yourself',
+  ALREADY_FOLLOWING: 'You are already following this user',
+
+  // Statistics
+  STATISTICS_FETCHED_SUCCESSFULLY: 'Trading statistics fetched successfully',
+
+  // Other existing messages...
+  INVALID_CURRENT_PASSWORD: 'Current password is incorrect',
+  RISK_SETTINGS_UPDATED_SUCCESSFULLY: 'Risk settings updated successfully',
 };
 
 export default MESSAGES;

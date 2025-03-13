@@ -15,7 +15,6 @@ import { UsersService } from 'src/api/users/users.service';
 import { User } from 'src/api/users/schemas/user.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { UserProfile } from 'src/api/users/interfaces/user-profile.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Enable2faDto } from './dto/enable-2fa.dto';
 import { TwoFactorService } from './two-factor.service';
@@ -27,7 +26,6 @@ import { JwtService } from '@nestjs/jwt';
 import { RequestEnable2faDto } from './dto/request-enable-2fa.dto';
 import { RequestDisable2faDto } from './dto/request-disable-2fa.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { CaptchaGuard } from './guards/captcha.guard';
 import { SessionInterceptor } from '../sessions/interceptors/session.interceptor';
 
 @Controller('auth')
@@ -138,22 +136,6 @@ export class AuthController {
       message: 'User logged in successfully',
       data: result,
     };
-  }
-
-  @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  async getProfile(@Req() req: Request): Promise<UserProfile> {
-    if (!req.user) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_AUTHENTICATED);
-    }
-
-    const userId = req.user['_id'].toString();
-    const profile = await this.usersService.getProfile(userId);
-    if (!profile) {
-      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
-    }
-
-    return profile;
   }
 
   @UseGuards(JwtAuthGuard)

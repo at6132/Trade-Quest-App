@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from 'src/api/auth/dto/register.dto';
-import { AssetType } from 'src/common/enums';
 import { UserProfile } from './interfaces/user-profile.interface';
-import { Asset, AssetDocument } from '../assets/schemas/asset.schema';
 import * as bcrypt from 'bcrypt';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdatePreferencesDto } from './dto/update-preferences.dto';
+import { UpdateRiskSettingsDto } from './dto/update-risk-settings.dto';
+import MESSAGES from 'src/common/messages';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
-    @InjectModel(Asset.name)
-    private assetModel: Model<AssetDocument>,
   ) {}
 
   async create(createUserDto: RegisterDto): Promise<User> {
@@ -60,5 +60,111 @@ export class UsersService {
     return this.userModel.findByIdAndUpdate(userId, updateUserDto, {
       new: true,
     });
+  }
+
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<UserProfile | null> {
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      { $set: updateProfileDto },
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      return null;
+    }
+
+    const { password, tfaSecret, tempOtp, ...userProfile } =
+      updatedUser.toObject();
+    return userProfile;
+  }
+
+  async updatePreferences(
+    userId: string,
+    updatePreferencesDto: UpdatePreferencesDto,
+  ): Promise<UserProfile | null> {
+    try {
+      // Use dot notation to update specific fields within the preferences subdocument
+      const updateObj = {};
+
+      // Convert the DTO to dot notation for embedded document
+      Object.keys(updatePreferencesDto).forEach((key) => {
+        updateObj[`preferences.${key}`] = updatePreferencesDto[key];
+      });
+
+      // Update the document with the specific field updates
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        userId,
+        { $set: updateObj },
+        { new: true },
+      );
+
+      if (!updatedUser) {
+        return null;
+      }
+
+      const { password, tfaSecret, tempOtp, ...userProfile } =
+        updatedUser.toObject();
+      return userProfile;
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+      return null;
+    }
+  }
+
+  async updateRiskSettings(
+    userId: string,
+    updateRiskSettingsDto: UpdateRiskSettingsDto,
+  ): Promise<UserProfile | null> {
+    try {
+      // Use dot notation to update specific fields within the riskSettings subdocument
+      const updateObj = {};
+
+      // Convert the DTO to dot notation for embedded document
+      Object.keys(updateRiskSettingsDto).forEach((key) => {
+        updateObj[`riskSettings.${key}`] = updateRiskSettingsDto[key];
+      });
+
+      // Update the document with the specific field updates
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        userId,
+        { $set: updateObj },
+        { new: true },
+      );
+
+      if (!updatedUser) {
+        return null;
+      }
+
+      const { password, tfaSecret, tempOtp, ...userProfile } =
+        updatedUser.toObject();
+      return userProfile;
+    } catch (error) {
+      console.error('Error updating risk settings:', error);
+      return null;
+    }
+  }
+
+  async changePassword(
+    user: User,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      return { success: false, message: MESSAGES.INVALID_CURRENT_PASSWORD };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.userModel.findByIdAndUpdate(user._id, {
+      password: hashedPassword,
+    });
+    return { success: true, message: MESSAGES.PASSWORD_CHANGED_SUCCESSFULLY };
   }
 }

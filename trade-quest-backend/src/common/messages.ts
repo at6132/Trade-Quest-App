@@ -61,6 +61,7 @@ const MESSAGES = {
   PROFILE_UPDATED_SUCCESSFULLY: 'Profile updated successfully',
   PREFERENCES_UPDATED_SUCCESSFULLY: 'Preferences updated successfully',
   PASSWORD_CHANGED_SUCCESSFULLY: 'Password changed successfully',
+  INVALID_FILE_TYPE: 'Invalid file type',
 };
 
 export default MESSAGES;

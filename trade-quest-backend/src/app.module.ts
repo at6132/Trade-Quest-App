@@ -16,6 +16,7 @@ import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './config/winston.config';
 import emailConfig from './config/email.config';
 import CONSTANTS from './common/constants';
+import { MarketDataModule } from './api/market-data/market-data.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import CONSTANTS from './common/constants';
     LeaderboardsModule,
     ThrottlerModule.forRoot(throttlerConfig),
     WinstonModule.forRoot(winstonConfig),
+    MarketDataModule,
   ],
   providers: [
     {

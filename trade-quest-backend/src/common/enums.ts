@@ -68,3 +68,46 @@ export enum Theme {
   DARK = 'dark',
   SYSTEM = 'system',
 }
+
+export enum BrokerType {
+  // Stocks
+  ALPACA = 'ALPACA',
+  INTERACTIVE_BROKERS = 'INTERACTIVE_BROKERS',
+  TRADIER = 'TRADIER',
+
+  // Futures
+  CME = 'CME',
+  TRADOVATE = 'TRADOVATE',
+
+  // Crypto
+  BINANCE = 'BINANCE',
+  KRAKEN = 'KRAKEN',
+  COINBASE = 'COINBASE',
+
+  // Forex
+  OANDA = 'OANDA',
+  FXCM = 'FXCM',
+}
+
+export enum OrderSide {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  SUBMITTED = 'SUBMITTED',
+  ACCEPTED = 'ACCEPTED',
+  PARTIALLY_FILLED = 'PARTIALLY_FILLED',
+  FILLED = 'FILLED',
+  CANCELED = 'CANCELED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+}
+
+export enum AssetClass {
+  STOCKS = 'STOCKS',
+  FUTURES = 'FUTURES',
+  CRYPTO = 'CRYPTO',
+  FOREX = 'FOREX',
+}

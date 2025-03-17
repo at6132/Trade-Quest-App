@@ -17,6 +17,7 @@ import { winstonConfig } from './config/winston.config';
 import emailConfig from './config/email.config';
 import CONSTANTS from './common/constants';
 import { MarketDataModule } from './api/market-data/market-data.module';
+import { BrokersModule } from './api/brokers/brokers.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { MarketDataModule } from './api/market-data/market-data.module';
     ThrottlerModule.forRoot(throttlerConfig),
     WinstonModule.forRoot(winstonConfig),
     MarketDataModule,
+    BrokersModule,
   ],
   providers: [
     {

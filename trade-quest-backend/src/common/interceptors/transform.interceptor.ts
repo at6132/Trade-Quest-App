@@ -6,12 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-export interface Response<T> {
-  success: boolean;
-  message: string;
-  data?: T;
-}
+import { ApiResponse } from '../interfaces/api-response.interface';
 
 export interface CustomResponse<T> {
   data: T;
@@ -20,25 +15,24 @@ export interface CustomResponse<T> {
 
 @Injectable()
 export class TransformInterceptor<T>
-  implements NestInterceptor<T, Response<T>>
+  implements NestInterceptor<T, ApiResponse<T>>
 {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<Response<T>> {
+  ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((data) => {
-        if (data?.message) {
+        if (data?.message || data?.data) {
           return {
             success: true,
-            message: data.message,
-            data: data.data, // Remove the spread operator to maintain original structure
+            ...(data.message && { message: data.message }),
+            ...(data.data !== undefined && { data: data.data }),
           };
         }
 
         return {
           success: true,
-          message: 'Operation successful',
           data,
         };
       }),

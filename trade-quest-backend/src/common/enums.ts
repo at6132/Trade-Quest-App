@@ -75,14 +75,8 @@ export enum BrokerType {
   INTERACTIVE_BROKERS = 'INTERACTIVE_BROKERS',
   TRADIER = 'TRADIER',
 
-  // Futures
-  CME = 'CME',
-  TRADOVATE = 'TRADOVATE',
-
   // Crypto
   BINANCE = 'BINANCE',
-  KRAKEN = 'KRAKEN',
-  COINBASE = 'COINBASE',
 
   // Forex
   OANDA = 'OANDA',

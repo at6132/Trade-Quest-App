@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { BrokerType } from 'src/common/enums';
 
 @Injectable()
@@ -16,9 +17,12 @@ export class BrokerAuthService {
         return this.getIBAuthUrl();
       case BrokerType.TRADIER:
         return this.getTradierAuthUrl();
-      case BrokerType.COINBASE:
-        return this.getCoinbaseAuthUrl();
-      // Add other brokers that support OAuth
+      case BrokerType.BINANCE:
+        return this.getBinanceAuthUrl();
+      case BrokerType.OANDA:
+        return this.getOandaAuthUrl();
+      case BrokerType.FXCM:
+        return this.getFxcmAuthUrl();
       default:
         throw new Error(`OAuth not supported for broker: ${brokerType}`);
     }

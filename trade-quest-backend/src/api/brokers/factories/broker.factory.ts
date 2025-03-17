@@ -6,14 +6,8 @@ import { AlpacaBroker } from '../implementations/alpaca.broker';
 import { InteractiveBrokersBroker } from '../implementations/interactive-brokers.broker';
 import { TradierBroker } from '../implementations/tradier.broker';
 
-// Futures brokers
-import { CmeBroker } from '../implementations/cme.broker';
-import { TradovateBroker } from '../implementations/tradovate.broker';
-
 // Crypto brokers
 import { BinanceBroker } from '../implementations/binance.broker';
-import { KrakenBroker } from '../implementations/kraken.broker';
-import { CoinbaseBroker } from '../implementations/coinbase.broker';
 
 // Forex brokers
 import { OandaBroker } from '../implementations/oanda.broker';
@@ -34,19 +28,10 @@ export class BrokerFactory {
       case BrokerType.TRADIER:
         return new TradierBroker(credentials, configService);
 
-      // Futures brokers
-      case BrokerType.CME:
-        return new CmeBroker(credentials, configService);
-      case BrokerType.TRADOVATE:
-        return new TradovateBroker(credentials, configService);
 
       // Crypto brokers
       case BrokerType.BINANCE:
         return new BinanceBroker(credentials, configService);
-      case BrokerType.KRAKEN:
-        return new KrakenBroker(credentials, configService);
-      case BrokerType.COINBASE:
-        return new CoinbaseBroker(credentials, configService);
 
       // Forex brokers
       case BrokerType.OANDA:
@@ -66,13 +51,7 @@ export class BrokerFactory {
       case BrokerType.TRADIER:
         return AssetClass.STOCKS;
 
-      case BrokerType.CME:
-      case BrokerType.TRADOVATE:
-        return AssetClass.FUTURES;
-
       case BrokerType.BINANCE:
-      case BrokerType.KRAKEN:
-      case BrokerType.COINBASE:
         return AssetClass.CRYPTO;
 
       case BrokerType.OANDA:
@@ -94,10 +73,10 @@ export class BrokerFactory {
         ];
 
       case AssetClass.FUTURES:
-        return [BrokerType.CME, BrokerType.TRADOVATE];
+        return []; // Futures will be added later
 
       case AssetClass.CRYPTO:
-        return [BrokerType.BINANCE, BrokerType.KRAKEN, BrokerType.COINBASE];
+        return [BrokerType.BINANCE]; // Only Binance for crypto
 
       case AssetClass.FOREX:
         return [BrokerType.OANDA, BrokerType.FXCM];

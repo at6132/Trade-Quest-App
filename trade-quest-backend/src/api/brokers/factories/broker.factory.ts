@@ -28,7 +28,6 @@ export class BrokerFactory {
       case BrokerType.TRADIER:
         return new TradierBroker(credentials, configService);
 
-
       // Crypto brokers
       case BrokerType.BINANCE:
         return new BinanceBroker(credentials, configService);

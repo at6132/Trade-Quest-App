@@ -1,7 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import * as crypto from 'crypto';
 import { Broker } from '../interfaces/broker.interface';
 import { CreateOrderDto } from '../dto/create-order.dto';
+import { OrderSide, OrderType } from '../../../common/enums';
 
 export class BinanceBroker implements Broker {
   private readonly logger = new Logger(BinanceBroker.name);
@@ -33,31 +36,151 @@ export class BinanceBroker implements Broker {
   }
 
   async submitOrder(orderData: CreateOrderDto): Promise<string> {
-    // Implementation for Binance order submission
-    return 'binance-order-id';
+    try {
+      const payload: any = {
+        symbol: orderData.symbol,
+        side: this.mapOrderSide(orderData.side),
+        type: this.mapOrderType(orderData.type),
+        quantity: orderData.quantity,
+        timestamp: Date.now(),
+      };
+
+      if (orderData.type === OrderType.LIMIT) {
+        payload.timeInForce = 'GTC';
+        payload.price = orderData.price;
+      }
+
+      if (orderData.type === OrderType.STOP) {
+        payload.stopPrice = orderData.stopPrice;
+      }
+
+      if (orderData.type === OrderType.STOP_LIMIT) {
+        payload.timeInForce = 'GTC';
+        payload.price = orderData.price;
+        payload.stopPrice = orderData.stopPrice;
+      }
+
+      const response = await this.makeRequest('/api/v3/order', 'POST', payload);
+      return response.orderId;
+    } catch (error) {
+      this.logger.error(`Failed to submit order to Binance: ${error.message}`);
+      throw new Error(`Order submission failed: ${error.message}`);
+    }
   }
 
   async getOrderStatus(orderId: string): Promise<any> {
-    // Implementation for Binance order status
-    return { status: 'NEW' };
+    try {
+      const params = {
+        orderId,
+        timestamp: Date.now(),
+      };
+      return await this.makeRequest('/api/v3/order', 'GET', params);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get order status from Binance: ${error.message}`,
+      );
+      throw new Error(`Failed to get order status: ${error.message}`);
+    }
   }
 
   async cancelOrder(orderId: string): Promise<boolean> {
-    // Implementation for Binance order cancellation
-    return true;
+    try {
+      const params = {
+        orderId,
+        timestamp: Date.now(),
+      };
+      await this.makeRequest('/api/v3/order', 'DELETE', params);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to cancel order on Binance: ${error.message}`);
+      return false;
+    }
   }
 
   async getAccountInfo(): Promise<any> {
-    // Implementation for Binance account info
-    return { account: 'binance-account' };
+    try {
+      const params = {
+        timestamp: Date.now(),
+      };
+      return await this.makeRequest('/api/v3/account', 'GET', params);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get account info from Binance: ${error.message}`,
+      );
+      throw new Error(`Failed to get account info: ${error.message}`);
+    }
   }
 
   private async makeRequest(
     endpoint: string,
     method: string,
-    data?: any,
+    params?: any,
   ): Promise<any> {
-    // Implementation for Binance API requests
-    return {};
+    try {
+      // Add signature for authenticated endpoints
+      let queryString = '';
+
+      if (params) {
+        const signature = this.generateSignature(params);
+        params.signature = signature;
+
+        queryString = Object.keys(params)
+          .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+          .join('&');
+      }
+
+      const url = `${this.baseUrl}${endpoint}${queryString ? '?' + queryString : ''}`;
+
+      const response = await axios({
+        method,
+        url,
+        headers: {
+          'X-MBX-APIKEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Binance API request failed: ${error.message}`);
+      throw error;
+    }
+  }
+
+  private generateSignature(params: any): string {
+    const queryString = Object.keys(params)
+      .map((key) => `${key}=${params[key]}`)
+      .join('&');
+
+    return crypto
+      .createHmac('sha256', this.apiSecret)
+      .update(queryString)
+      .digest('hex');
+  }
+
+  private mapOrderSide(side: OrderSide): string {
+    switch (side) {
+      case OrderSide.BUY:
+        return 'BUY';
+      case OrderSide.SELL:
+        return 'SELL';
+      default:
+        return 'BUY';
+    }
+  }
+
+  private mapOrderType(type: OrderType): string {
+    switch (type) {
+      case OrderType.MARKET:
+        return 'MARKET';
+      case OrderType.LIMIT:
+        return 'LIMIT';
+      case OrderType.STOP:
+        return 'STOP_LOSS';
+      case OrderType.STOP_LIMIT:
+        return 'STOP_LOSS_LIMIT';
+      default:
+        return 'MARKET';
+    }
   }
 }

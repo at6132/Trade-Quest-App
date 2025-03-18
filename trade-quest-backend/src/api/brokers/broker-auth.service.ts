@@ -23,6 +23,10 @@ export class BrokerAuthService {
         return this.getOandaAuthUrl();
       case BrokerType.FXCM:
         return this.getFxcmAuthUrl();
+      case BrokerType.KRAKEN:
+        return this.getKrakenAuthUrl();
+      case BrokerType.COINBASE:
+        return this.getCoinbaseAuthUrl();
       default:
         throw new Error(`OAuth not supported for broker: ${brokerType}`);
     }
@@ -31,9 +35,7 @@ export class BrokerAuthService {
   private getAlpacaAuthUrl(): string {
     const clientId = this.configService.get<string>('ALPACA_CLIENT_ID');
     const redirectUri = this.configService.get<string>('ALPACA_REDIRECT_URI');
-    const authUrl =
-      this.configService.get<string>('ALPACA_AUTH_URL') ||
-      'https://app.alpaca.markets/oauth/authorize';
+    const authUrl = this.configService.get<string>('ALPACA_AUTH_URL');
 
     return `${authUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=account:write%20trading`;
   }
@@ -73,6 +75,20 @@ export class BrokerAuthService {
     return `https://api.fxcm.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=trading`;
   }
 
+  private getKrakenAuthUrl(): string {
+    const clientId = this.configService.get<string>('KRAKEN_CLIENT_ID');
+    const redirectUri = this.configService.get<string>('KRAKEN_REDIRECT_URI');
+
+    return `https://auth.kraken.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=trade`;
+  }
+
+  private getCoinbaseAuthUrl(): string {
+    const clientId = this.configService.get<string>('COINBASE_CLIENT_ID');
+    const redirectUri = this.configService.get<string>('COINBASE_REDIRECT_URI');
+
+    return `https://www.coinbase.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=wallet:accounts:read,wallet:buys:create,wallet:sells:create`;
+  }
+
   async handleOAuthCallback(
     brokerType: BrokerType,
     code: string,
@@ -91,6 +107,10 @@ export class BrokerAuthService {
         return this.handleOandaCallback(code);
       case BrokerType.FXCM:
         return this.handleFxcmCallback(code);
+      case BrokerType.KRAKEN:
+        return this.handleKrakenCallback(code);
+      case BrokerType.COINBASE:
+        return this.handleCoinbaseCallback(code);
       default:
         throw new Error(
           `OAuth callback not implemented for broker: ${brokerType}`,
@@ -183,5 +203,70 @@ export class BrokerAuthService {
   private async handleFxcmCallback(code: string): Promise<any> {
     // Implementation for FXCM
     return {};
+  }
+
+  private async handleKrakenCallback(code: string): Promise<any> {
+    try {
+      const clientId = this.configService.get<string>('KRAKEN_CLIENT_ID');
+      const clientSecret = this.configService.get<string>(
+        'KRAKEN_CLIENT_SECRET',
+      );
+      const redirectUri = this.configService.get<string>('KRAKEN_REDIRECT_URI');
+
+      const response = await axios.post(
+        'https://auth.kraken.com/oauth2/token',
+        {
+          grant_type: 'authorization_code',
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+        },
+      );
+
+      return {
+        apiKey: response.data.access_token,
+        apiSecret: response.data.refresh_token,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to handle Kraken OAuth callback: ${error.message}`,
+      );
+      throw new Error(`Authentication with Kraken failed: ${error.message}`);
+    }
+  }
+
+  private async handleCoinbaseCallback(code: string): Promise<any> {
+    try {
+      const clientId = this.configService.get<string>('COINBASE_CLIENT_ID');
+      const clientSecret = this.configService.get<string>(
+        'COINBASE_CLIENT_SECRET',
+      );
+      const redirectUri = this.configService.get<string>(
+        'COINBASE_REDIRECT_URI',
+      );
+
+      const response = await axios.post(
+        'https://api.coinbase.com/oauth/token',
+        {
+          grant_type: 'authorization_code',
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+        },
+      );
+
+      return {
+        apiKey: response.data.access_token,
+        apiSecret: response.data.refresh_token,
+        passphrase: '', // Coinbase Pro requires a passphrase, which would need to be provided by the user
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to handle Coinbase OAuth callback: ${error.message}`,
+      );
+      throw new Error(`Authentication with Coinbase failed: ${error.message}`);
+    }
   }
 }

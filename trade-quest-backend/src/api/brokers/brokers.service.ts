@@ -10,6 +10,11 @@ import { BrokerType, OrderStatus, AssetClass } from 'src/common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
 import { BrokerFactory } from './factories/broker.factory';
+import {
+  successResponse,
+  errorResponse,
+} from '../../common/utils/service-response.util';
+import { ServiceResponse } from '../../common/interfaces/service-response.interface';
 
 @Injectable()
 export class BrokersService {
@@ -146,40 +151,80 @@ export class BrokersService {
     userId: string,
     brokerType: BrokerType,
     credentials: any,
+    assetClass?: AssetClass,
     isDemo: boolean = false,
-  ) {
-    // Validate credentials with broker
-    const broker = BrokerFactory.createBroker(
-      brokerType,
-      credentials,
-      this.configService,
-    );
+  ): Promise<ServiceResponse<BrokerConnection | BrokerConnection[]>> {
+    try {
+      // Validate credentials with broker
+      const broker = BrokerFactory.createBroker(
+        brokerType,
+        credentials,
+        this.configService,
+      );
 
-    const isValid = await broker.validateCredentials();
+      const isValid = await broker.validateCredentials();
 
-    if (!isValid) {
-      throw new Error('Invalid broker credentials');
+      if (!isValid) {
+        return errorResponse('Invalid broker credentials');
+      }
+
+      // Get account info
+      const accountInfo = await broker.getAccountInfo();
+
+      // Get supported asset classes for this broker
+      const supportedAssetClasses =
+        BrokerFactory.getSupportedAssetClasses(brokerType);
+
+      // If assetClass is provided, verify it's supported
+      if (assetClass && !supportedAssetClasses.includes(assetClass)) {
+        return errorResponse(
+          `Broker ${brokerType} does not support ${assetClass}`,
+        );
+      }
+
+      // If no specific asset class is provided, create connections for all supported asset classes
+      if (!assetClass && supportedAssetClasses.length > 0) {
+        const connections: BrokerConnection[] = [];
+
+        for (const supportedAssetClass of supportedAssetClasses) {
+          const brokerConnection = new this.brokerConnectionModel({
+            userId,
+            brokerType,
+            assetClass: supportedAssetClass,
+            credentials,
+            isActive: true,
+            lastConnected: new Date(),
+            accountInfo,
+            isDemo,
+          });
+
+          connections.push(await brokerConnection.save());
+        }
+
+        return successResponse(
+          'Broker connected successfully for all supported markets',
+          connections,
+        );
+      }
+
+      // Create a connection for the specified asset class
+      const brokerConnection = new this.brokerConnectionModel({
+        userId,
+        brokerType,
+        assetClass: assetClass || supportedAssetClasses[0], // Default to first supported asset class
+        credentials,
+        isActive: true,
+        lastConnected: new Date(),
+        accountInfo,
+        isDemo,
+      });
+
+      const savedConnection = await brokerConnection.save();
+      return successResponse('Broker connected successfully', savedConnection);
+    } catch (error) {
+      this.logger.error(`Error connecting broker: ${error.message}`);
+      return errorResponse(`Failed to connect broker: ${error.message}`);
     }
-
-    // Get account info
-    const accountInfo = await broker.getAccountInfo();
-
-    // Get asset class for this broker type
-    const assetClass = BrokerFactory.getBrokerAssetClass(brokerType);
-
-    // Save broker connection
-    const brokerConnection = new this.brokerConnectionModel({
-      userId,
-      brokerType,
-      assetClass,
-      credentials,
-      isActive: true,
-      lastConnected: new Date(),
-      accountInfo,
-      isDemo,
-    });
-
-    return await brokerConnection.save();
   }
 
   async getBrokerConnections(userId: string) {

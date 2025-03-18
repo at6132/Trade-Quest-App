@@ -1,6 +1,12 @@
-import { IsEnum, IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
-import { BrokerType } from '../../../common/enums';
+import { BrokerType, AssetClass } from '../../../common/enums';
 
 export class ConnectBrokerDto {
   @IsNotEmpty()
@@ -12,4 +18,8 @@ export class ConnectBrokerDto {
   @ValidateNested()
   @Type(() => Object)
   credentials: Record<string, any>;
+
+  @IsOptional()
+  @IsEnum(AssetClass)
+  assetClass?: AssetClass;
 }

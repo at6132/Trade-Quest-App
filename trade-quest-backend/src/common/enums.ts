@@ -72,11 +72,14 @@ export enum Theme {
 export enum BrokerType {
   // Stocks
   ALPACA = 'ALPACA',
-  INTERACTIVE_BROKERS = 'INTERACTIVE_BROKERS',
   TRADIER = 'TRADIER',
+  // Stocks, Forex, Crypto
+  INTERACTIVE_BROKERS = 'INTERACTIVE_BROKERS',
 
   // Crypto
   BINANCE = 'BINANCE',
+  KRAKEN = 'KRAKEN',
+  COINBASE = 'COINBASE',
 
   // Forex
   OANDA = 'OANDA',

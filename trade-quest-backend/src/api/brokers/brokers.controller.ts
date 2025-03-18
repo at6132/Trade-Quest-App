@@ -62,6 +62,27 @@ export class BrokersController {
     }
   }
 
+  @Get('connect/:brokerType')
+  async initiateConnection(
+    @Req() req: Request,
+    @Param('brokerType') brokerType: BrokerType,
+    @Res() res: Response,
+  ) {
+    try {
+      const user = req.user as User;
+      const authUrl = this.brokerAuthService.getAuthUrl(brokerType);
+
+      // Store the broker type in session or use a state parameter
+      // to retrieve it during callback
+
+      return res.redirect(authUrl);
+    } catch (error) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/broker-connected?success=false&error=${error.message}`,
+      );
+    }
+  }
+
   @Get('oauth/callback')
   async oauthCallback(
     @Query('code') code: string,
@@ -103,13 +124,20 @@ export class BrokersController {
     @Body() connectBrokerDto: ConnectBrokerDto,
   ) {
     const user = req.user as User;
+    const response = await this.brokersService.connectBroker(
+      user._id,
+      connectBrokerDto.brokerType,
+      connectBrokerDto.credentials,
+    );
+
     return {
-      message: 'Broker connected successfully',
-      data: await this.brokersService.connectBroker(
-        user._id,
-        connectBrokerDto.brokerType,
-        connectBrokerDto.credentials,
-      ),
+      success: response.success,
+      message:
+        response.message ||
+        (response.success
+          ? 'Broker connected successfully'
+          : 'Failed to connect broker'),
+      data: response.data,
     };
   }
 
@@ -162,5 +190,38 @@ export class BrokersController {
         : 'Failed to cancel order',
       success,
     };
+  }
+
+  @Get('supported-markets/:brokerType')
+  getSupportedMarkets(@Param('brokerType') brokerType: BrokerType) {
+    try {
+      const supportedAssetClasses =
+        BrokerFactory.getSupportedAssetClasses(brokerType);
+      return {
+        message: 'Supported markets retrieved successfully',
+        data: supportedAssetClasses,
+      };
+    } catch (error) {
+      return {
+        message: 'Failed to get supported markets',
+        error: error.message,
+      };
+    }
+  }
+
+  @Get('brokers-by-market/:assetClass')
+  getBrokersByMarket(@Param('assetClass') assetClass: AssetClass) {
+    try {
+      const brokers = BrokerFactory.getBrokersByAssetClass(assetClass);
+      return {
+        message: 'Brokers retrieved successfully',
+        data: brokers,
+      };
+    } catch (error) {
+      return {
+        message: 'Failed to get brokers by market',
+        error: error.message,
+      };
+    }
   }
 }

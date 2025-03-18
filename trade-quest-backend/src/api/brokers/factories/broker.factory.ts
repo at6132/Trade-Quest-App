@@ -13,75 +13,85 @@ import { BinanceBroker } from '../implementations/binance.broker';
 import { OandaBroker } from '../implementations/oanda.broker';
 import { FxcmBroker } from '../implementations/fxcm.broker';
 
+import { KrakenBroker } from '../implementations/kraken.broker';
+import { CoinbaseBroker } from '../implementations/coinbase.broker';
+
 export class BrokerFactory {
+  /**
+   * Create a broker instance based on broker type
+   */
   static createBroker(
-    type: BrokerType,
+    brokerType: BrokerType,
     credentials: any,
     configService: ConfigService,
-  ) {
-    switch (type) {
-      // Stock brokers
+  ): any {
+    switch (brokerType) {
       case BrokerType.ALPACA:
         return new AlpacaBroker(credentials, configService);
       case BrokerType.INTERACTIVE_BROKERS:
         return new InteractiveBrokersBroker(credentials, configService);
       case BrokerType.TRADIER:
         return new TradierBroker(credentials, configService);
-
-      // Crypto brokers
       case BrokerType.BINANCE:
         return new BinanceBroker(credentials, configService);
-
-      // Forex brokers
       case BrokerType.OANDA:
         return new OandaBroker(credentials, configService);
       case BrokerType.FXCM:
         return new FxcmBroker(credentials, configService);
-
+      case BrokerType.KRAKEN:
+        return new KrakenBroker(credentials, configService);
+      case BrokerType.COINBASE:
+        return new CoinbaseBroker(credentials, configService);
       default:
-        throw new Error(`Unsupported broker type: ${type}`);
+        throw new Error(`Broker type not supported: ${brokerType}`);
     }
   }
 
-  static getBrokerAssetClass(type: BrokerType): AssetClass {
-    switch (type) {
-      case BrokerType.ALPACA:
+  /**
+   * Get supported asset classes for a specific broker
+   */
+  static getSupportedAssetClasses(brokerType: BrokerType): AssetClass[] {
+    switch (brokerType) {
       case BrokerType.INTERACTIVE_BROKERS:
+        return [AssetClass.STOCKS, AssetClass.FOREX, AssetClass.CRYPTO];
+      case BrokerType.ALPACA:
+        return [AssetClass.STOCKS];
       case BrokerType.TRADIER:
-        return AssetClass.STOCKS;
-
+        return [AssetClass.STOCKS];
       case BrokerType.BINANCE:
-        return AssetClass.CRYPTO;
-
+      case BrokerType.KRAKEN:
+      case BrokerType.COINBASE:
+        return [AssetClass.CRYPTO];
       case BrokerType.OANDA:
       case BrokerType.FXCM:
-        return AssetClass.FOREX;
-
-      default:
-        throw new Error(`Unknown asset class for broker type: ${type}`);
-    }
-  }
-
-  static getBrokersByAssetClass(assetClass: AssetClass): BrokerType[] {
-    switch (assetClass) {
-      case AssetClass.STOCKS:
-        return [
-          BrokerType.ALPACA,
-          BrokerType.INTERACTIVE_BROKERS,
-          BrokerType.TRADIER,
-        ];
-
-      case AssetClass.FUTURES:
-        return []; // Futures will be added later
-
-      case AssetClass.CRYPTO:
-        return [BrokerType.BINANCE]; // Only Binance for crypto
-
-      case AssetClass.FOREX:
-        return [BrokerType.OANDA, BrokerType.FXCM];
-
+        return [AssetClass.FOREX];
       default:
         return [];
     }
+  }
+
+  /**
+   * Get brokers that support a specific asset class
+   */
+  static getBrokersByAssetClass(assetClass: AssetClass): BrokerType[] {
+    const brokers: BrokerType[] = [];
+
+    Object.values(BrokerType).forEach((brokerType) => {
+      if (this.getSupportedAssetClasses(brokerType).includes(assetClass)) {
+        brokers.push(brokerType);
+      }
+    });
+
+    return brokers;
+  }
+
+  /**
+   * Check if a broker supports a specific asset class
+   */
+  static supportsBrokerAssetClass(
+    brokerType: BrokerType,
+    assetClass: AssetClass,
+  ): boolean {
+    return this.getSupportedAssetClasses(brokerType).includes(assetClass);
   }
 }
